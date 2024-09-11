@@ -1,5 +1,5 @@
 classdef abm_run < handle
-    %comment
+    %comment two
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%    
     
 properties (SetAccess = public)

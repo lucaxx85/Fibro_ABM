@@ -1,5 +1,5 @@
 classdef MacModel_singlemac < handle
-
+%test
     properties (SetAccess = public)
         CurrentGeneration = 0;
         PreviousGeneration = 0;

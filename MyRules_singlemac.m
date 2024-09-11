@@ -1,5 +1,8 @@
 classdef MyRules_singlemac < LungModelRule
     
+
+    % test
+    
 properties (SetAccess = public)
     Model;
     GenerationSize = 20; %duration in minutes, must also change in abm_run.m, MacModel.m

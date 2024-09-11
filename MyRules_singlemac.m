@@ -1,7 +1,6 @@
 classdef MyRules_singlemac < LungModelRule
     
 
-    % test
     
 properties (SetAccess = public)
     Model;

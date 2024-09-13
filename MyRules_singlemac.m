@@ -9,7 +9,7 @@ properties (SetAccess = public)
     ImmuneCellCountsSquared;
     IntermediateCounts;
     IntermediateCountsSquared;
-    %F0Counts;  %fibrocytes
+%     %F0Counts;  %fibrocytes
     %F0CountsSquared;
     F1Counts;  %myofibroblasts (F1)
     F1CountsSquared;
@@ -159,9 +159,22 @@ methods
         end
                        
         % diffuse pro- and anti-inflammatory mediators
-        model.ProInflammatoryLattice = diffuse(model.ProInflammatoryLattice);
-        model.AntiInflammatoryLattice = diffuse(model.AntiInflammatoryLattice); 
-        
+        pimlattice = model.ProInflammatoryLattice;
+        model.ProInflammatoryLattice = diffuse(model.ProInflammatoryLattice); %  aggiungere la chemotassi qui ;
+        model.AntiInflammatoryLattice = diffuse(model.AntiInflammatoryLattice);
+        %         model.ChemotaxisLattice = model.ProInflammatoryLattice - model.ProInflammatoryLattice(size(model.ProInflammatoryLattice,1)/2,size(model.ProInflammatoryLattice,1)/2);
+        %         model.CitokinesLattice = model.ProInflammatoryLattice +  model.ChemotaxisLattice;
+        pimdiffuse = model.ProInflammatoryLattice;
+        [m,n] = size(pimdiffuse);
+        for i = 1:m-2
+            for j = 1:n-2
+                local_matrix = pimlattice(i:i+2,j:j+2);  %provisional 3x3 matrix with PIM values
+                chemotaxis_3 = local_matrix - local_matrix(2,2);
+                diffused_3 = diffuse(pimdiffuse(i:i+2,j:j+2));
+                pimcytokines(i:i+2,j:j+2) = chemotaxis_3 + diffused_3;
+            end
+        end
+       model.ProInflammatoryCytokinesLattice = pimcytokines;
         % The amount of pro- and anti-inflammatories in each cell decays at a set rate
         model.ProInflammatoryLattice = model.ProInflammatoryLattice .* (1 - this.ProInflammatoryDecayRate);
         model.AntiInflammatoryLattice = model.AntiInflammatoryLattice .* (1 - this.AntiInflammatoryDecayRate);
@@ -323,6 +336,9 @@ methods
     end
     
     function moveImmuneCells(this)
+        %change this function, temp is useless, leave the for loops and
+        %create a probability matrix containing the weight to move
+        %macrophages
         model = this.Model;
         %change the space to where the immune cells moves to 3. If the
         %cell cannot move, change the space its on to 3. at the end,

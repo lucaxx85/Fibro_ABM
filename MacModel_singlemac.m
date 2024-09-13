@@ -8,6 +8,7 @@ classdef MacModel_singlemac < handle
         ImmuneLattice; %qui dentro aggiungiamo i fibroblasti
         ProInflammatoryLattice;
         AntiInflammatoryLattice;
+        ProInflammatoryCytokinesLattice;
         SOCSLattice;
         M1ActivationLattice;
         M2ActivationLattice;
@@ -38,7 +39,7 @@ classdef MacModel_singlemac < handle
         AgeMeanF=48;  %first approximation
         AgeStDevF=12;   %first approximation
         Outcome = Outcomes.Healthy;
-        ShowLattices = false;  %false
+        ShowLattices = true;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
         ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia
@@ -156,8 +157,9 @@ classdef MacModel_singlemac < handle
         function reset(this)
             this.ImmuneLattice = this.InitialImmuneMatrix;
             this.ImmuneAge = this.InitialImmuneAge;
-%             this.FibroAge = this.InitialFibroAge;
+            %             this.FibroAge = this.InitialFibroAge;
             this.ProInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
+            this.ProInflammatoryCytokinesLattice = zeros(size(this.InitialImmuneMatrix));
             [n,~]=size(this.InitialImmuneMatrix);
             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= this.InitialPIM;  %location of PIM stimulus
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
@@ -211,6 +213,11 @@ classdef MacModel_singlemac < handle
                 factivation_h = figure;
                 set(factivation_h, 'Name', 'F Activation');
                 title('F Activation')
+
+                citokines_h = figure;
+                set(citokines_h, 'Name', 'Diffusion and Chemotaxis');
+                title('Diffusion and Chemotaxis')
+
 
                 %
                 %         socs_h = figure;
@@ -299,6 +306,16 @@ classdef MacModel_singlemac < handle
                         'XTickLabel', '', ...
                         'YTickLabel', '');
                     title('F activation')
+
+                     set(0, 'CurrentFigure', citokines_h);
+                    imagesc(this.ProInflammatoryCytokinesLattice);
+                    colormap(autumn);
+                    axis square;
+                    set(gca, 'XTick', [], ...
+                        'YTick', [], ...
+                        'XTickLabel', '', ...
+                        'YTickLabel', '');
+                    title('diffusion and chemotaxis')
 
                     drawnow;
 

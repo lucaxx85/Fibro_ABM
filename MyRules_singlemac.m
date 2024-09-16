@@ -170,7 +170,7 @@ methods
             for j = 1:n-2
                 local_matrix = pimlattice(i:i+2,j:j+2);  %provisional 3x3 matrix with PIM values
                 chemotaxis_3 = local_matrix - local_matrix(2,2);
-                diffused_3 = diffuse(pimdiffuse(i:i+2,j:j+2));
+                diffused_3 = pimdiffuse(i:i+2,j:j+2);
                 pimcytokines(i:i+2,j:j+2) = chemotaxis_3 + diffused_3;
             end
         end

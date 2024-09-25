@@ -9,7 +9,7 @@ properties (SetAccess = public)
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
     Runs = 1;  %number of simulations
-    hours = 12; 
+    hours = 24; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
 end

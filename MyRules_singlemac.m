@@ -325,39 +325,42 @@ methods
         %change the space to where the immune cells moves to 3. If the
         %cell cannot move, change the space its on to 3. at the end,
         %change all 3s to 1s.
-        temp = randi([1,9],size(model.ImmuneLattice));
+%         temp = randi([1,9],size(model.ImmuneLattice));
+%         temp = nan(40,40,40,40);
+        prob = random('normal',0,model.ProInflammatoryLattice,size(model.ImmuneLattice));
         %1 2 3
         %4 5 6
         %7 8 9
+        temp = nan(40,40,3);
+        temp(:,:,1) = model.ImmuneLattice;
+        temp(:,:,2) = prob;
         [m,n] = size(model.ImmuneLattice);
         ii=0;
         jj=0;
-        for i = 1:m
-            for j = 1:n
+        for i = 1:m-1
+            for j = 1:n-1
                 if (model.ImmuneLattice(i,j) == ImmuneStates.M0Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.M1Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.M2Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic) || ...
-                        (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...   %specified
-                        (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)    %added
-                    %move up
-                    if temp(i,j) < 3
-                        ii = i - 1;
-                        %move down
-                    elseif temp(i,j) > 6
-                        ii = i + 1;
-                    else
-                        ii = i;
+                        (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...   %leave or remove from here, since we are considering macrophage movement?
+                        (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)    %leave or remove from here, since we are considering macrophage movement?
+                    if abs(temp(i+1,j+1,2)) > abs(temp(i,j,2))
+                        ii = i +1;
+                    elseif abs(temp(i+1,j+1,2)) <= abs(temp(i,j,2))
+                        ii = i ;
+                        %                     else
+                        %                         ii = i; %resta fermo
                     end
-                    %move right
-                    if mod(temp(i,j),3) == 0
-                        jj = j + 1;
-                        %move left
-                    elseif mod(temp(i,j),3) == 1
-                        jj = j - 1;
-                    else
-                        jj = j;
-                    end
+                    %                     %move right
+                    %                     if mod(temp(i,j),3) == 0
+                    %                         jj = j + 1;
+                    %                         %move left
+                    %                     elseif mod(temp(i,j),3) == 1
+                    %                         jj = j - 1;
+                    %                     else
+                    %                         jj = j;
+                    %                     end
                     %adjust values at edges to spill over to other side
                     if ii <= 0
                         ii = m;
@@ -475,23 +478,23 @@ methods
         end
         %finalize cells from Moving to Static
         % M0
-        temp = model.ImmuneLattice == ImmuneStates.M0Moving;
-        model.ImmuneLattice(temp) = ImmuneStates.M0Static;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.M0Moving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.M0Static; %laddove ho 1, mettici M0static
         % M1
-        temp = model.ImmuneLattice == ImmuneStates.M1Moving;
-        model.ImmuneLattice(temp) = ImmuneStates.M1Static;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.M1Moving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.M1Static;
         % M2
-        temp = model.ImmuneLattice == ImmuneStates.M2Moving;
-        model.ImmuneLattice(temp) = ImmuneStates.M2Static;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.M2Moving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.M2Static;
         % intermediate
-        temp = model.ImmuneLattice == ImmuneStates.MIntMoving;
-        model.ImmuneLattice(temp) = ImmuneStates.MIntStatic;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.MIntMoving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.MIntStatic;
         % F0 (fybrocytes)
-        temp = model.ImmuneLattice == ImmuneStates.F0Moving;
-        model.ImmuneLattice(temp) = ImmuneStates.F0Static;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.F0Moving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.F0Static;
         %fibroblasts
-        temp = model.ImmuneLattice == ImmuneStates.F1Moving;
-        model.ImmuneLattice(temp) = ImmuneStates.F1Static;
+        temp(:,:,3) = model.ImmuneLattice == ImmuneStates.F1Moving;
+        model.ImmuneLattice(temp(:,:,3)==1) = ImmuneStates.F1Static;
 
         %kill cells
         tempDeath = (model.ImmuneAge <= 0);

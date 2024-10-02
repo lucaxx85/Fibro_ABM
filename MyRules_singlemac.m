@@ -342,8 +342,11 @@ methods
                         (model.ImmuneLattice(i,j) == ImmuneStates.M2Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic)
                     prob_spostam = prob_spostam_m;
-                else
+                elseif (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...
+                        (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)
                     prob_spostam = prob_spostam_f;
+                else
+                    continue
                 end
                 %move up
                 if prob_spostam == 1

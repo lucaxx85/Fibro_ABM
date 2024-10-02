@@ -95,6 +95,9 @@ properties (SetAccess = public)
     M2SOCSInfinity=7; % SOCS inhibition of M2 activation
     F1SOCSInfinity = 7; %SOCS inhibition of F1 activation (first approximation)
     AIMSOCSInfinity=0.01; % SOCS inhibition of AIM production
+
+    % LP AIM diff
+    AIMDiffHillScale = 20;
 end
 
 methods
@@ -341,10 +344,10 @@ methods
                         (model.ImmuneLattice(i,j) == ImmuneStates.M1Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.M2Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic)
-                    prob_spostam = prob_spostam_m;
+                    prob_spostam = prob_spostam_m(i,j);
                 elseif (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)
-                    prob_spostam = prob_spostam_f;
+                    prob_spostam = prob_spostam_f(i,j);
                 else
                     continue
                 end
@@ -390,8 +393,11 @@ methods
                     model.ImmuneAge(i,j) = 0;
                 end
                 % fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F0Static;
-                if model.ImmuneLattice(i,j) ~= ImmuneStates.F0Static || model.ImmuneLattice(i,j) ~= ImmuneStates.F1Static                     %se ho un macrofago
+                if model.ImmuneLattice(i,j) ~= ImmuneStates.F0Static && model.ImmuneLattice(i,j) ~= ImmuneStates.F1Static                   %se ho un macrofago
                     % move SOCS
+                    if (model.ImmuneLattice(i,j)== ImmuneStates.F1Moving)
+                        display('ayayayay')
+                    end
                     model.SOCSLattice(ii,jj) = model.SOCSLattice(i,j);
                     if i~=ii || j ~= jj
                         model.SOCSLattice(i,j) = 0;
@@ -466,8 +472,10 @@ methods
 
                     %natural decay (not sure to include it)
                     %model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
-
-                    model.ImmuneLattice(i,j) = ImmuneStates.Empty;
+                    if i~=ii || j ~= jj
+                        model.ImmuneLattice(i,j) = ImmuneStates.Empty;
+                    end
+                    
 
 
                 end

@@ -174,12 +174,15 @@ methods
             %%% calculate the probability a macrophage will be recruited
             if(model.ToggleRecruitment)
                 this.ProbImmuneCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentMMTerm^2);
-                this.ProbFCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
             else
                 this.ProbImmuneCellArrives = zeros(size(model.ImmuneLattice));
-                this.ProbFCellArrives = zeros(size(model.ImmuneLattice));
-
             end
+            if (model.ToggleRecruitment_f)
+                this.ProbFCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
+            else
+                this.ProbFCellArrives = zeros(size(model.ImmuneLattice));
+            end
+            
             this.ProbRecruited(model.CurrentGeneration)=mean(mean(this.ProbImmuneCellArrives));
             this.ProbRecruited_f(model.CurrentGeneration)=mean(mean(this.ProbFCellArrives));
 

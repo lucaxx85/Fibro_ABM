@@ -174,7 +174,8 @@ methods
             %%% calculate the probability a macrophage will be recruited
             if(model.ToggleRecruitment)
                 this.ProbImmuneCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentMMTerm^2);
-                this.ProbFCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
+                this.ProbFCellArrives = (model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2./...
+                    ((model.ProInflammatoryLattice+this.AIMRecruitScale*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
             else
                 this.ProbImmuneCellArrives = zeros(size(model.ImmuneLattice));
                 this.ProbFCellArrives = zeros(size(model.ImmuneLattice));
@@ -327,13 +328,31 @@ methods
         %change the space to where the immune cells moves to 3. If the
         %cell cannot move, change the space its on to 3. at the end,
         %change all 3s to 1s.
-        temp = randi([1,9],size(model.ImmuneLattice));  % da la direzione 
+        gradXM = [-1 0 1;-1 0 1; -1 0 1];
+        gradYM = gradXM';
+        pimGradX = conv2 (model.ProInflammatoryLattice,gradXM,'same');
+        pimGradY = conv2 (model.ProInflammatoryLattice,gradYM,'same');
+        dxProb = -pimGradX/3;
+        dyProb = -pimGradY/3;
+        
+        dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));
+        dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));
+        
         num_trials = 1;
         pm = 0.2 + 0.8* (model.ProInflammatoryLattice.^2)./(model.ProInflammatoryLattice.^2+model.InitialPIM); %hill equation for probability, so that also macrophages where ProInflammatoryLattice is 0 can diffuse        
         pf = 0.2 + 0.8* (model.AntiInflammatoryLattice.^2)./(model.AntiInflammatoryLattice.^2+model.InitialAIM); %hill equation for probability, so that also fibroblasts where AntiInflammatoryLattice is 0 can diffuse        
 
         prob_spostam_m = binornd(num_trials,pm);  %puó valere o 0 o 1
         prob_spostam_f = binornd(num_trials,pf);  %puó valere o 0 o 1
+
+        dxProb = dxProb + normrnd(0,pm);
+        dyProb = dyProb + normrnd(0,pm);
+
+        dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));
+        dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));        
+
+        dx = binornd(1,abs(dxProb)).*sign(dxProb);
+        dy = binornd(1,abs(dyProb)).*sign(dyProb);
 
         [m,n] = size(model.ImmuneLattice);
         ii=0;
@@ -343,44 +362,29 @@ methods
                 if (model.ImmuneLattice(i,j) == ImmuneStates.M0Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.M1Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.M2Static) || ...
-                        (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic)
-                    prob_spostam = prob_spostam_m(i,j);
-                elseif (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...
+                        (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic) || ...
+                        (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)
                     prob_spostam = prob_spostam_f(i,j);
                 else
                     continue
                 end
-                %move up
-                if prob_spostam == 1
-                    if temp(i,j) < 3
-                        ii = i - 1;
-                        %move down
-                    elseif temp(i,j) > 6
-                        ii = i + 1;
-                    end
-                    if mod(temp(i,j),3) == 0
-                        jj = j + 1;
-                    elseif mod(temp(i,j),3) == 1
-                        jj = j - 1;
-                    end
-                elseif prob_spostam == 0
-                    ii = i;
-                    jj = j;
-                end
-                %adjust values at edges to spill over to other side
-                if ii <= 0
+                %move
+                ii = i+dy(i,j);
+                jj = j+dx(i,j);
+                if (ii<1)
                     ii = m;
+                end
+                if(jj<1)
+                    jj = n;
                 end
                 if ii > m
                     ii = 1;
                 end
-                if jj <= 0
-                    jj = n;
-                end
-                if jj > n
+                if jj>n 
                     jj = 1;
                 end
+
                 % move cells
                 if model.ImmuneLattice(ii,jj) ~= ImmuneStates.Empty  %se la destinazione non è vuota, quindi è già occupata
                     ii = i;
@@ -464,7 +468,7 @@ methods
 
                     oldf1act=model.F1ActivationLattice(i,j);
                     model.F1ActivationLattice(i,j)=0; % fibroblast no longer there
-                    model.ImmuneLattice(ii,jj) = ImmuneStates.F1Moving;
+
                     %increase of F1activation when myofibroblasts are
                     %obtained through FMT
                     model.F1ActivationLattice(ii,jj)=oldf1act+min([this.F1ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.F1ActHillParameter^4)*normrnd(1,0.25)...
@@ -472,6 +476,11 @@ methods
 
                     %natural decay (not sure to include it)
                     %model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
+                    if model.F1ActivationLattice(ii,jj)>0.25
+                        model.ImmuneLattice(ii,jj) = ImmuneStates.F1Moving;
+                    else
+                        model.ImmuneLattice(ii,jj) = ImmuneStates.F0Moving;
+                    end
                     if i~=ii || j ~= jj
                         model.ImmuneLattice(i,j) = ImmuneStates.Empty;
                     end

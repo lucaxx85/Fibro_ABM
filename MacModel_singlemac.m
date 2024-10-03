@@ -21,12 +21,12 @@ classdef MacModel_singlemac < handle
 %         InitialFibroAge;
 %         FibroAge;
         InitialImmuneMatrix;
-        InitialImmuneCount=1280;  %numero iniziale di macrofagi (default 1) sono in M0
+        InitialImmuneCount=40;  %numero iniziale di macrofagi (default 1) sono in M0
         InitialM1Count=0;  %numero di macrofagi che si trovano dall'inizio in M1
         InitialM2Count=0;   %numero di macrofagi che si trovano dall'inizio in M2
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
         InitialF1Count=0;
-        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)
+        InitialPIM = 10;   %Pro inflammatory stimulus (a.u.)
         InitTotalPIM = 0;  %somma sui pixel di initialPIM
         InitialAIM = 0;
         InitTotalAIM = 0;

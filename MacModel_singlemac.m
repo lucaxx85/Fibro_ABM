@@ -38,14 +38,14 @@ classdef MacModel_singlemac < handle
         AgeMeanF=48;  %first approximation
         AgeStDevF=12;   %first approximation
         Outcome = Outcomes.Healthy;
-        ShowLattices = false;  %false
+        ShowLattices = true;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
         ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia
-        togglePlot = false;  %false
-        togglePlotSingleMac = false;  %false
-        toggleLayeredFigure = false;   %false
-        SingleMacWriteUpFigures = false; %false
+        togglePlot = true;  %false
+        togglePlotSingleMac = true;  %false
+        toggleLayeredFigure = true;   %false
+        SingleMacWriteUpFigures = true; %false
         InitialMatrix;
         Rules;
         RuleSet = {'MyRules_singlemac'};

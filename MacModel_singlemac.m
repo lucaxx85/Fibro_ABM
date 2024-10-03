@@ -40,7 +40,7 @@ classdef MacModel_singlemac < handle
         Outcome = Outcomes.Healthy;
         ShowLattices = true;  %false
         toggleImmune = true;
-        ToggleRecruitment = true;  
+        ToggleRecruitment = false;  
         ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia
         togglePlot = true;  %false
         togglePlotSingleMac = true;  %false
@@ -141,7 +141,7 @@ classdef MacModel_singlemac < handle
                     this.InitialImmuneMatrix(i,j) = 10;
                     n_f = n_f + 1;
                     this.ImmuneAge(i,j) = (round(this.AgeStDevF*randn(1)) + this.AgeMeanF)*60/this.GenerationSize;
-                    this.InitialF1ActivationLattice(i,j)=random_in_range(0,1); %attivazione del F
+                    this.InitialF1ActivationLattice(i,j)=random_in_range(0.25,1); %attivazione del F
                     %                     this.InitialM2ActivationLattice(i,j)=random_in_range(max([0, 0.25-this.InitialM1ActivationLattice(i,j)]),0.49);
                 end
             end

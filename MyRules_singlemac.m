@@ -338,27 +338,31 @@ methods
         gradYM = gradXM';
         pimGradX = conv2 (model.ProInflammatoryLattice,gradXM,'same');
         pimGradY = conv2 (model.ProInflammatoryLattice,gradYM,'same');
-        dxProb = -pimGradX/3;
-        dyProb = -pimGradY/3;
-        
+
+        dxProb = -pimGradX*0.5;
+        dyProb = -pimGradY*0.5;
+
         dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));
         dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));
-        
-        num_trials = 1;
-        pm = 0.2 + 0.8* (model.ProInflammatoryLattice.^2)./(model.ProInflammatoryLattice.^2+model.InitialPIM); %hill equation for probability, so that also macrophages where ProInflammatoryLattice is 0 can diffuse        
-        pf = 0.2 + 0.8* (model.AntiInflammatoryLattice.^2)./(model.AntiInflammatoryLattice.^2+model.InitialAIM); %hill equation for probability, so that also fibroblasts where AntiInflammatoryLattice is 0 can diffuse        
 
-        prob_spostam_m = binornd(num_trials,pm);  %puó valere o 0 o 1
-        prob_spostam_f = binornd(num_trials,pf);  %puó valere o 0 o 1
+        %         num_trials = 1;
+        %         pm = 0.2 + 0.8* (model.ProInflammatoryLattice.^2)./(model.ProInflammatoryLattice.^2+model.InitialPIM); %hill equation for probability, so that also macrophages where ProInflammatoryLattice is 0 can diffuse
+        %         pf = 0.2 + 0.8* (model.AntiInflammatoryLattice.^2)./(model.AntiInflammatoryLattice.^2+model.InitialAIM); %hill equation for probability, so that also fibroblasts where AntiInflammatoryLattice is 0 can diffuse
 
-        dxProb = dxProb + normrnd(0,pm);
-        dyProb = dyProb + normrnd(0,pm);
+        %         prob_spostam_m = binornd(num_trials,pm);  %puó valere o 0 o 1
+        %         prob_spostam_f = binornd(num_trials,pf);  %puó valere o 0 o 1
 
-        dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));
-        dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));        
+        %         dxProb = dxProb + normrnd(0,pm);  %chemotassi + diffusione dei macrofagi
+        %         dyProb = dyProb + normrnd(0,pm);  %chemotassi + diffusione dei macrofagi
+        %
+        %         dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));  %matrici di -1, 0 e 1
+        %         dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));
 
+        %%%%%%%%%%%%%%%%%
         dx = binornd(1,abs(dxProb)).*sign(dxProb);
         dy = binornd(1,abs(dyProb)).*sign(dyProb);
+        %         dx = abs(dxProb);
+        %         dy = abs(dyProb);
 
         [m,n] = size(model.ImmuneLattice);
         ii=0;
@@ -371,130 +375,130 @@ methods
                         (model.ImmuneLattice(i,j) == ImmuneStates.MIntStatic) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.F0Static) || ...
                         (model.ImmuneLattice(i,j) == ImmuneStates.F1Static)
-                    prob_spostam = prob_spostam_f(i,j);
-                else
-                    continue
-                end
-                %move
-                ii = i+dy(i,j);
-                jj = j+dx(i,j);
-                if (ii<1)
-                    ii = m;
-                end
-                if(jj<1)
-                    jj = n;
-                end
-                if ii > m
-                    ii = 1;
-                end
-                if jj>n 
-                    jj = 1;
-                end
+                    %                     prob_spostam = prob_spostam_f(i,j);
+                    %                 else
+                    %                     continue
 
-                % move cells
-                if model.ImmuneLattice(ii,jj) ~= ImmuneStates.Empty  %se la destinazione non è vuota, quindi è già occupata
-                    ii = i;
-                    jj = j;
-                end
-                % move age cell
-                model.ImmuneAge(ii,jj) = model.ImmuneAge(i,j)-1;
-                old_age=model.ImmuneAge(i,j);
-                if i~=ii || j ~= jj
-                    model.ImmuneAge(i,j) = 0;
-                end
-                % fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F0Static;
-                if model.ImmuneLattice(i,j) ~= ImmuneStates.F0Static && model.ImmuneLattice(i,j) ~= ImmuneStates.F1Static                   %se ho un macrofago
-                    % move SOCS
-                    if (model.ImmuneLattice(i,j)== ImmuneStates.F1Moving)
-                        display('ayayayay')
+                    %move
+                    ii = i+dy(i,j);
+                    jj = j+dx(i,j);
+                    if (ii<1)
+                        ii = m;
                     end
-                    model.SOCSLattice(ii,jj) = model.SOCSLattice(i,j);
+                    if(jj<1)
+                        jj = n;
+                    end
+                    if ii > m
+                        ii = 1;
+                    end
+                    if jj>n
+                        jj = 1;
+                    end
+
+                    % move cells
+                    if model.ImmuneLattice(ii,jj) ~= ImmuneStates.Empty  %se la destinazione non è vuota, quindi è già occupata
+                        ii = i;
+                        jj = j;
+                    end
+                    % move age cell
+                    model.ImmuneAge(ii,jj) = model.ImmuneAge(i,j)-1;
+                    old_age=model.ImmuneAge(i,j);
                     if i~=ii || j ~= jj
-                        model.SOCSLattice(i,j) = 0;
+                        model.ImmuneAge(i,j) = 0;
                     end
-
-                    % update M1/M2 activation
-                    pim_fun=@(x) x^2/(x^2+this.M1ActHillParameter^2);
-                    aim_fun=@(x,hill) x^2/(x^2+hill^2);
-
-                    % get old M1 activation
-                    oldm1act=model.M1ActivationLattice(i,j);
-                    model.M1ActivationLattice(i,j)=0; % macrophage no longer there
-                    % get old M2 activation
-                    oldm2act=model.M2ActivationLattice(i,j);
-                    model.M2ActivationLattice(i,j)=0; % macrophage no longer there
-
-                    % increase M1 expression via PIM, inhibited by SOCS
-                    model.M1ActivationLattice(ii,jj)=oldm1act+min([this.M1ActivationRate*pim_fun(model.ProInflammatoryLattice(ii,jj))*normrnd(1,0.25)...
-                        *1/(1+(model.SOCSLattice(ii,jj)/this.M1SOCSInfinity)^2), 1-oldm1act-oldm2act]);
-
-                    % decrease M1 expression via AIM
-                    model.M1ActivationLattice(ii,jj)=max([model.M1ActivationLattice(ii,jj)-this.M1DecreaseViaAIM*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M1DecreaseViaAIMHill), 0]);
-
-                    % increase M2 expression via AIM
-                    model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.M2ActHillParameter^4)*normrnd(1,0.25)...
-                        *1/(1+(model.SOCSLattice(ii,jj)/this.M2SOCSInfinity)^2), 1-oldm1act-oldm2act]);
-                    %  model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M2ActHillParameter)*normrnd(1,0.25)...
-
-
-                    % decrease M1 & M2 expression (natural decay)
-                    model.M1ActivationLattice(ii,jj)=model.M1ActivationLattice(ii,jj).*(1-this.PIMNegativeFeedbackRate);
-                    model.M2ActivationLattice(ii,jj)=model.M2ActivationLattice(ii,jj).*(1-this.AIMNegativeFeedbackRate);
-                    % model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
-
-                    % make old space empty
-                    %fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F1Static;
-                    model.ImmuneLattice(i,j) = ImmuneStates.Empty;
-
-                    % change new state
-
-                    % was original state M0?
-                    oldstate=model.ImmuneLattice(ii,jj) == ImmuneStates.M0Moving;
-                    %                             if fibroflag~=1
-                    if model.M1ActivationLattice(ii,jj)>0.5
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.M1Moving;
-                        if oldstate==1 % if M0 -> M1, change age to 12 hours
-                            model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
+                    % fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F0Static;
+                    if model.ImmuneLattice(i,j) ~= ImmuneStates.F0Static && model.ImmuneLattice(i,j) ~= ImmuneStates.F1Static                   %se ho un macrofago
+                        % move SOCS
+                        if (model.ImmuneLattice(i,j) == ImmuneStates.F1Moving)
+                            display('ayayayay')
                         end
-                    elseif model.M2ActivationLattice(ii,jj)>0.5
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.M2Moving;
-                        if oldstate==1 % if M0 -> M2, change age to 12 hours
-                            model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
+                        model.SOCSLattice(ii,jj) = model.SOCSLattice(i,j);
+                        if i~=ii || j ~= jj
+                            model.SOCSLattice(i,j) = 0;
                         end
-                    elseif model.M1ActivationLattice(ii,jj)+model.M2ActivationLattice(ii,jj)>0.25
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.MIntMoving;
-                        if oldstate==1 % if M0 -> intermediate, change age to 12 hours
-                            model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
-                        end
-                    else
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.M0Moving;
-                    end
 
-                else  %se ho un fibrocita o un miofibroblasto
+                        % update M1/M2 activation
+                        pim_fun=@(x) x^2/(x^2+this.M1ActHillParameter^2);
+                        aim_fun=@(x,hill) x^2/(x^2+hill^2);
 
-                    oldf1act=model.F1ActivationLattice(i,j);
-                    model.F1ActivationLattice(i,j)=0; % fibroblast no longer there
+                        % get old M1 activation
+                        oldm1act=model.M1ActivationLattice(i,j);
+                        model.M1ActivationLattice(i,j)=0; % macrophage no longer there
+                        % get old M2 activation
+                        oldm2act=model.M2ActivationLattice(i,j);
+                        model.M2ActivationLattice(i,j)=0; % macrophage no longer there
 
-                    %increase of F1activation when myofibroblasts are
-                    %obtained through FMT
-                    model.F1ActivationLattice(ii,jj)=oldf1act+min([this.F1ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.F1ActHillParameter^4)*normrnd(1,0.25)...
-                        *1/(1+(model.SOCSLattice(ii,jj)/this.F1SOCSInfinity)^2), 1-oldf1act]);
+                        % increase M1 expression via PIM, inhibited by SOCS
+                        model.M1ActivationLattice(ii,jj)=oldm1act+min([this.M1ActivationRate*pim_fun(model.ProInflammatoryLattice(ii,jj))*normrnd(1,0.25)...
+                            *1/(1+(model.SOCSLattice(ii,jj)/this.M1SOCSInfinity)^2), 1-oldm1act-oldm2act]);
 
-                    %natural decay (not sure to include it)
-                    %model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
-                    if model.F1ActivationLattice(ii,jj)>0.25
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.F1Moving;
-                    else
-                        model.ImmuneLattice(ii,jj) = ImmuneStates.F0Moving;
-                    end
-                    if i~=ii || j ~= jj
+                        % decrease M1 expression via AIM
+                        model.M1ActivationLattice(ii,jj)=max([model.M1ActivationLattice(ii,jj)-this.M1DecreaseViaAIM*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M1DecreaseViaAIMHill), 0]);
+
+                        % increase M2 expression via AIM
+                        model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.M2ActHillParameter^4)*normrnd(1,0.25)...
+                            *1/(1+(model.SOCSLattice(ii,jj)/this.M2SOCSInfinity)^2), 1-oldm1act-oldm2act]);
+                        %  model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M2ActHillParameter)*normrnd(1,0.25)...
+
+
+                        % decrease M1 & M2 expression (natural decay)
+                        model.M1ActivationLattice(ii,jj)=model.M1ActivationLattice(ii,jj).*(1-this.PIMNegativeFeedbackRate);
+                        model.M2ActivationLattice(ii,jj)=model.M2ActivationLattice(ii,jj).*(1-this.AIMNegativeFeedbackRate);
+                        % model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
+
+                        % make old space empty
+                        %fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F1Static;
                         model.ImmuneLattice(i,j) = ImmuneStates.Empty;
+
+                        % change new state
+
+                        % was original state M0?
+                        oldstate=model.ImmuneLattice(ii,jj) == ImmuneStates.M0Moving;
+                        %                             if fibroflag~=1
+                        if model.M1ActivationLattice(ii,jj)>0.5
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.M1Moving;
+                            if oldstate==1 % if M0 -> M1, change age to 12 hours
+                                model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
+                            end
+                        elseif model.M2ActivationLattice(ii,jj)>0.5
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.M2Moving;
+                            if oldstate==1 % if M0 -> M2, change age to 12 hours
+                                model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
+                            end
+                        elseif model.M1ActivationLattice(ii,jj)+model.M2ActivationLattice(ii,jj)>0.25
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.MIntMoving;
+                            if oldstate==1 % if M0 -> intermediate, change age to 12 hours
+                                model.ImmuneAge(ii,jj)=min(old_age,(round(this.AgeStDevActivated.*randn(1,1) + this.AgeMeanActivated).*60/this.GenerationSize));
+                            end
+                        else
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.M0Moving;
+                        end
+
+                    else  %se ho un fibrocita o un miofibroblasto
+
+                        oldf1act=model.F1ActivationLattice(i,j);
+                        model.F1ActivationLattice(i,j)=0; % fibroblast no longer there
+
+                        %increase of F1activation when myofibroblasts are
+                        %obtained through FMT
+                        model.F1ActivationLattice(ii,jj)=oldf1act+min([this.F1ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.F1ActHillParameter^4)*normrnd(1,0.25)...
+                            *1/(1+(model.SOCSLattice(ii,jj)/this.F1SOCSInfinity)^2), 1-oldf1act]);
+
+                        %natural decay (not sure to include it)
+                        %model.F1ActivationLattice(ii,jj)=model.F1ActivationLattice(ii,jj).*(1-this.FNegativeFeedbackRate);
+                        if model.F1ActivationLattice(ii,jj)>0.25
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.F1Moving;
+                        else
+                            model.ImmuneLattice(ii,jj) = ImmuneStates.F0Moving;
+                        end
+                        if i~=ii || j ~= jj
+                            model.ImmuneLattice(i,j) = ImmuneStates.Empty;
+                        end
+
+
+
                     end
-                    
-
-
                 end
-                %                     end
             end
         end
         

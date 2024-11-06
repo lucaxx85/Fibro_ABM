@@ -26,7 +26,7 @@ classdef MacModel_singlemac < handle
         InitialM2Count=0;   %numero di macrofagi che si trovano dall'inizio in M2
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
         InitialF1Count=0;
-        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)
+        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
         InitTotalPIM = 0;  %somma sui pixel di initialPIM
         InitialAIM = 0;
         InitTotalAIM = 0;
@@ -38,14 +38,14 @@ classdef MacModel_singlemac < handle
         AgeMeanF=48;  %first approximation
         AgeStDevF=12;   %first approximation
         Outcome = Outcomes.Healthy;
-        ShowLattices = true;  %false
+        ShowLattices = false;  %false
         toggleImmune = true;
         ToggleRecruitment = false;  
         ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia
-        togglePlot = true;  %false
-        togglePlotSingleMac = true;  %false
-        toggleLayeredFigure = true;   %false
-        SingleMacWriteUpFigures = true; %false
+        togglePlot = false;  %false
+        togglePlotSingleMac = false;  %false
+        toggleLayeredFigure = false;   %false
+        SingleMacWriteUpFigures = false; %false
         InitialMatrix;
         Rules;
         RuleSet = {'MyRules_singlemac'};

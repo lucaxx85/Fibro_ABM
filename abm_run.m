@@ -8,8 +8,8 @@ properties (SetAccess = public)
     rule;
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
-    Runs = 1;  %number of simulations
-    hours = 24; 
+    Runs = 30;  %number of simulations
+    hours = 36; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
 end
@@ -160,7 +160,7 @@ function run(this)
         avgrecruit_sq_h = [avgrecruit_h(1)^2 (this.Rule.Results{1}.RecruitedCellsSquared)];
         avgprobrecruit_sq_h = [avgprobrecruit_h(1)^2 (this.Rule.Results{1}.ProbRecruitedSquared)];
        
-        avgrecruit_f_sq_h = [avgrecruit_h(1)^2 (this.Rule.Results{1}.RecruitedFibroblastsSquared)];
+        avgrecruit_f_sq_h = [avgrecruit_f_h(1)^2 (this.Rule.Results{1}.RecruitedFibroblastsSquared)];
         avgprobrecruit_f_sq_h = [avgprobrecruit_f_h(1)^2 (this.Rule.Results{1}.ProbRecruitedSquared_f)];
 
 
@@ -249,7 +249,10 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         this.Rule.Results{1}.sdm0count = sdm0count_h;
         this.Rule.Results{1}.avgintact_tot = avgintcount_h;
         this.Rule.Results{1}.sdmintcount = sdintcount_h;
-
+        this.Rule.Results{1}.recruitedmac = avgrecruit_h;
+        this.Rule.Results{1}.recruitedfibro = avgrecruit_f_h;
+        this.Rule.Results{1}.sdrecruitedmac = sdrecruit_h;
+        this.Rule.Results{1}.sdrecruitedfibro = sdrecruit_f_h;
         %inflammed (added)
 %         this.Rule.Results{2}.avgm1act = avgm1act_i;
 %         this.Rule.Results{2}.avgm2act = avgm2act_i;

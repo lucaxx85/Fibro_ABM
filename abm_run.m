@@ -8,8 +8,8 @@ properties (SetAccess = public)
     rule;
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
-    Runs = 1;  %number of simulations
-    hours = 64; 
+    Runs = 10;  %number of simulations
+    hours = 36; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
 end
@@ -113,7 +113,7 @@ function run(this)
         this.Rule.Results{model.Outcome}.F1Counts = this.Rule.Results{model.Outcome}.F1Counts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.F1CountsSquared = this.Rule.Results{model.Outcome}.F1CountsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.AverageF1Activation = this.Rule.Results{model.Outcome}.AverageF1Activation / this.Rule.Results{model.Outcome}.Runs;
-        this.Rule.Results{model.Outcome}.AverageFctivationSquared = this.Rule.Results{model.Outcome}.AverageF1ActivationSquared / this.Rule.Results{model.Outcome}.Runs;
+        this.Rule.Results{model.Outcome}.AverageFActivationSquared = this.Rule.Results{model.Outcome}.AverageF1ActivationSquared / this.Rule.Results{model.Outcome}.Runs;
 
         this.Rule.Results{model.Outcome}.RecruitedFibroblasts = this.Rule.Results{model.Outcome}.RecruitedFibroblasts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared = this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared / this.Rule.Results{model.Outcome}.Runs;

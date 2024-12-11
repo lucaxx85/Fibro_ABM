@@ -80,7 +80,7 @@ ic_cal_exp(1)=10/75;  %LPS
 % ic_cal_exp(3)=5.88e-4;  %TNF-a sup
 % % ic_cal_exp(2)=5.56e-4;  %IL-10 sup
 % 
-[T_comp,Y_minucci_ode] = ode23s(@rhs_crosstalk_minucci,[0 t_1],ic_cal_exp,[],params,0);
+%[T_comp,Y_minucci_ode] = ode23s(@rhs_crosstalk_minucci,[0 t_1],ic_cal_exp,[],params,0);
 % 
 % 
 

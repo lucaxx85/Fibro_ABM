@@ -38,7 +38,7 @@ classdef MacModel_singlemac < handle
         AgeMeanF=48;  %first approximation
         AgeStDevF=12;   %first approximation
         Outcome = Outcomes.Healthy;
-        ShowLattices = true;  %false
+        ShowLattices = false;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
         ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia

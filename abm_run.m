@@ -8,7 +8,7 @@ properties (SetAccess = public)
     rule;
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
-    Runs = 30;  %number of simulations
+    Runs = 1;  %number of simulations
     hours = 36; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
@@ -71,11 +71,14 @@ function run(this)
         this.Rule.Results{model.Outcome}.RecruitedCellsSquared = this.Rule.Results{model.Outcome}.RecruitedCellsSquared + (model.Rules{1}.RecruitedCells .^ 2);
         this.Rule.Results{model.Outcome}.ProbRecruited = this.Rule.Results{model.Outcome}.ProbRecruited + model.Rules{1}.ProbRecruited;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared = this.Rule.Results{model.Outcome}.ProbRecruitedSquared + (model.Rules{1}.ProbRecruited .^ 2);
+        this.Rule.Results{model.Outcome}.F0Counts = this.Rule.Results{model.Outcome}.F0Counts + model.Rules{1}.F0Counts;
+        this.Rule.Results{model.Outcome}.F0CountsSquared = this.Rule.Results{model.Outcome}.F0CountsSquared + (model.Rules{1}.F0Counts .^ 2);
         this.Rule.Results{model.Outcome}.F1Counts = this.Rule.Results{model.Outcome}.F1Counts + model.Rules{1}.F1Counts;
         this.Rule.Results{model.Outcome}.F1CountsSquared = this.Rule.Results{model.Outcome}.F1CountsSquared + (model.Rules{1}.F1Counts .^ 2);
         this.Rule.Results{model.Outcome}.AverageF1Activation = this.Rule.Results{model.Outcome}.AverageF1Activation + model.Rules{1}.AverageF1Activation;
         this.Rule.Results{model.Outcome}.AverageF1ActivationSquared = this.Rule.Results{model.Outcome}.AverageF1ActivationSquared + (model.Rules{1}.AverageF1Activation .^ 2);
-
+%         this.Rule.Results{model.Outcome}.TotalFibro = this.Rule.Results{model.Outcome}.TotalFibro + model.Rules{1}.TotalFibro;
+%         this.Rule.Results{model.Outcome}.TotalFibroSquared = this.Rule.Results{model.Outcome}.TotalFibroSquared + (model.Rules{1}.TotalFibro .^ 2);
         this.Rule.Results{model.Outcome}.RecruitedFibroblasts = this.Rule.Results{model.Outcome}.RecruitedFibroblasts + model.Rules{1}.RecruitedFibroblasts;
         this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared = this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared + (model.Rules{1}.RecruitedFibroblasts .^ 2);
 
@@ -110,11 +113,14 @@ function run(this)
         this.Rule.Results{model.Outcome}.RecruitedCellsSquared = this.Rule.Results{model.Outcome}.RecruitedCellsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProbRecruited = this.Rule.Results{model.Outcome}.ProbRecruited / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared = this.Rule.Results{model.Outcome}.ProbRecruitedSquared / this.Rule.Results{model.Outcome}.Runs;
+        this.Rule.Results{model.Outcome}.F0Counts = this.Rule.Results{model.Outcome}.F0Counts / this.Rule.Results{model.Outcome}.Runs;
+        this.Rule.Results{model.Outcome}.F0CountsSquared = this.Rule.Results{model.Outcome}.F0CountsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.F1Counts = this.Rule.Results{model.Outcome}.F1Counts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.F1CountsSquared = this.Rule.Results{model.Outcome}.F1CountsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.AverageF1Activation = this.Rule.Results{model.Outcome}.AverageF1Activation / this.Rule.Results{model.Outcome}.Runs;
-        this.Rule.Results{model.Outcome}.AverageFctivationSquared = this.Rule.Results{model.Outcome}.AverageF1ActivationSquared / this.Rule.Results{model.Outcome}.Runs;
-
+        this.Rule.Results{model.Outcome}.AverageF1ActivationSquared = this.Rule.Results{model.Outcome}.AverageF1ActivationSquared / this.Rule.Results{model.Outcome}.Runs;
+%         this.Rule.Results{model.Outcome}.TotalFibro = this.Rule.Results{model.Outcome}.TotalFibro / this.Rule.Results{model.Outcome}.Runs;
+%         this.Rule.Results{model.Outcome}.TotalFibroSquared = this.Rule.Results{model.Outcome}.TotalFibroSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.RecruitedFibroblasts = this.Rule.Results{model.Outcome}.RecruitedFibroblasts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared = this.Rule.Results{model.Outcome}.RecruitedFibroblastsSquared / this.Rule.Results{model.Outcome}.Runs;
 
@@ -127,15 +133,18 @@ function run(this)
         avgintcount_h = [0 (this.Rule.Results{1}.IntermediateCounts)];
         avgm1count_h = [this.Models{i}.InitialM1Count (this.Rule.Results{1}.M1Counts)];
         avgm2count_h = [this.Models{i}.InitialM2Count (this.Rule.Results{1}.M2Counts)];
-        avgfcount_h = [this.Models{i}.InitialF1Count (this.Rule.Results{1}.F1Counts)];
+        avgf0count_h = [this.Models{i}.InitialF0Count (this.Rule.Results{1}.F0Counts)];
+        avgf1count_h = [this.Models{i}.InitialF1Count (this.Rule.Results{1}.F1Counts)];
 
         avgtotalmacs_h = [avgm0count_h(1)+avgm1count_h(1)+avgm2count_h(1) (this.Rule.Results{1}.TotalMacs)];
+%         avgtotalfibro_h = [avgf0count_h(1)+avgf1count_h(1) (this.Rule.Results{1}.TotalFibro)];
+
         avgpimcount_h = [this.Models{i}.InitTotalPIM (this.Rule.Results{1}.ProInflammatoryCounts)];
         avgaimcount_h = [this.Models{i}.InitTotalAIM (this.Rule.Results{1}.AntiInflammatoryCounts)];
         avgsocscount_h = [this.Models{i}.InitialSOCS (this.Rule.Results{1}.SOCSCounts)];
         avgm1act_h = [mean(mean(this.Models{i}.InitialM1ActivationLattice)) (this.Rule.Results{1}.AverageM1Activation)];
         avgm2act_h = [mean(mean(this.Models{i}.InitialM2ActivationLattice)) (this.Rule.Results{1}.AverageM2Activation)];
-        avgfact_h = [mean(mean(this.Models{i}.InitialF1ActivationLattice)) (this.Rule.Results{1}.AverageF1Activation)];
+        avgf1act_h = [mean(mean(this.Models{i}.InitialF1ActivationLattice)) (this.Rule.Results{1}.AverageF1Activation)];
 
         avgrecruit_h = [0 (this.Rule.Results{1}.RecruitedCells)];
         avgprobrecruit_h = [0 (this.Rule.Results{1}.ProbRecruited)];
@@ -147,15 +156,18 @@ function run(this)
         avgintcount_sq_h = [avgintcount_h(1)^2 (this.Rule.Results{1}.IntermediateCountsSquared)];
         avgm1count_sq_h = [avgm1count_h(1)^2 (this.Rule.Results{1}.M1CountsSquared)];
         avgm2count_sq_h = [avgm2count_h(1)^2 (this.Rule.Results{1}.M2CountsSquared)];
-        avgfcount_sq_h = [avgfcount_h(1)^2 (this.Rule.Results{1}.F1CountsSquared)];
+        avgf0count_sq_h = [avgf0count_h(1)^2 (this.Rule.Results{1}.F0CountsSquared)];
+        avgf1count_sq_h = [avgf1count_h(1)^2 (this.Rule.Results{1}.F1CountsSquared)];
 
         avgtotalmacs_sq_h = [avgtotalmacs_h(1)^2 (this.Rule.Results{1}.TotalMacsSquared)];
+%         avgtotalfibro_sq_h = [avgtotalfibro_h(1)^2 (this.Rule.Results{1}.TotalFibroSquared)];
+
         avgpimcount_sq_h = [avgpimcount_h(1)^2 (this.Rule.Results{1}.ProInflammatoryCountsSquared)];
         avgaimcount_sq_h = [avgaimcount_h(1)^2 (this.Rule.Results{1}.AntiInflammatoryCountsSquared)];
         avgsocscount_sq_h = [avgsocscount_h(1)^2 (this.Rule.Results{1}.SOCSCountsSquared)];
         avgm1act_sq_h = [avgm1act_h(1)^2 (this.Rule.Results{1}.AverageM1ActivationSquared)];
         avgm2act_sq_h = [avgm2act_h(1)^2 (this.Rule.Results{1}.AverageM2ActivationSquared)];
-       avgfact_sq_h = [avgfact_h(1)^2 (this.Rule.Results{1}.AverageF1ActivationSquared)];
+        avgf1act_sq_h = [avgf1act_h(1)^2 (this.Rule.Results{1}.AverageF1ActivationSquared)];
 
         avgrecruit_sq_h = [avgrecruit_h(1)^2 (this.Rule.Results{1}.RecruitedCellsSquared)];
         avgprobrecruit_sq_h = [avgprobrecruit_h(1)^2 (this.Rule.Results{1}.ProbRecruitedSquared)];
@@ -197,20 +209,24 @@ sdm0count_h = sqrt(avgm0count_sq_h - avgm0count_h.^2);
 sdintcount_h = sqrt(avgintcount_sq_h - avgintcount_h.^2);
 sdm1count_h = sqrt(avgm1count_sq_h - avgm1count_h.^2);
 sdm2count_h = sqrt(avgm2count_sq_h - avgm2count_h.^2);
-sdfcount_h = sqrt(avgfcount_sq_h - avgfcount_h.^2);
+sdf0count_h = sqrt(avgf0count_sq_h - avgf0count_h.^2);
+sdf1count_h = sqrt(avgf1count_sq_h - avgf1count_h.^2);
 
 sdtotalmacs_h = sqrt(avgtotalmacs_sq_h - avgtotalmacs_h.^2);
+% sdtotalfibro_h = sqrt(avgtotalfibro_sq_h - avgtotalfibro_h.^2);
+
 sdpimcount_h = sqrt(avgpimcount_sq_h - avgpimcount_h.^2);
 sdaimcount_h = sqrt(avgaimcount_sq_h - avgaimcount_h.^2);
 sdsocscount_h = sqrt(avgsocscount_sq_h - avgsocscount_h.^2);
 sdm1act_h = sqrt(avgm1act_sq_h - avgm1act_h.^2);
 sdm2act_h = sqrt(avgm2act_sq_h - avgm2act_h.^2);
-sdfact_h = sqrt(avgfact_sq_h - avgfact_h.^2);
+sdf1act_h = sqrt(avgf1act_sq_h - avgf1act_h.^2);
 
 sdrecruit_h = sqrt(avgrecruit_sq_h - avgrecruit_h.^2);
 sdprobrecruit_h = sqrt(avgprobrecruit_sq_h - avgprobrecruit_h.^2);
 sdrecruit_f_h = sqrt(avgrecruit_f_sq_h - avgrecruit_f_h.^2);
 sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
+
 %%% inflamed outcome
 %         sdm0count_i = sqrt(avgm0count_sq_i - avgm0count_i.^2);
 %         sdintcount_i = sqrt(avgintcount_sq_i - avgintcount_i.^2);
@@ -228,27 +244,29 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         % save some results for healthy - can do the same for inflamed
         this.Rule.Results{1}.avgm1act = avgm1act_h;
         this.Rule.Results{1}.avgm2act = avgm2act_h;
-        this.Rule.Results{1}.avgfact = avgfact_h;
+        this.Rule.Results{1}.avgf1act = avgf1act_h;
         this.Rule.Results{1}.avgpimcount = avgpimcount_h;
         this.Rule.Results{1}.avgaimcount = avgaimcount_h;
         this.Rule.Results{1}.sdm1act = sdm1act_h;
         this.Rule.Results{1}.sdm2act = sdm2act_h;
-                this.Rule.Results{1}.sdfact = sdfact_h;
-
+        this.Rule.Results{1}.sdf1act = sdf1act_h;
         this.Rule.Results{1}.sdpimcount = sdpimcount_h;
         this.Rule.Results{1}.sdaimcount = sdaimcount_h;
         %added
-        this.Rule.Results{1}.avgm1act_tot = avgm1count_h;
+        this.Rule.Results{1}.avgm1count_tot = avgm1count_h;
         this.Rule.Results{1}.sdm1count = sdm1count_h;
-        this.Rule.Results{1}.avgm2act_tot = avgm2count_h;
+        this.Rule.Results{1}.avgm2count_tot = avgm2count_h;
         this.Rule.Results{1}.sdm2count = sdm2count_h;
-        this.Rule.Results{1}.avgfact_tot = avgfcount_h;
-        this.Rule.Results{1}.sdfcount = sdfcount_h;
+        this.Rule.Results{1}.avgf1count_tot = avgf1count_h;
+        this.Rule.Results{1}.sdf1count = sdf1count_h;
+        this.Rule.Results{1}.avgf0count_tot = avgf0count_h;
+        this.Rule.Results{1}.sdf0count = sdf0count_h;
 
         this.Rule.Results{1}.avgm0count_tot = avgm0count_h;
         this.Rule.Results{1}.sdm0count = sdm0count_h;
-        this.Rule.Results{1}.avgintact_tot = avgintcount_h;
+        this.Rule.Results{1}.avgintcount_tot = avgintcount_h;
         this.Rule.Results{1}.sdmintcount = sdintcount_h;
+
         this.Rule.Results{1}.recruitedmac = avgrecruit_h;
         this.Rule.Results{1}.recruitedfibro = avgrecruit_f_h;
         this.Rule.Results{1}.sdrecruitedmac = sdrecruit_h;
@@ -270,7 +288,7 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
 
         % plot results
 %         if(model.togglePlot) % full macrophage model  (plots representing results related to all macros)
-%             %%% healthy outcome
+% %             %%% healthy outcome
 %             figure('name','Results: Healthy Outcome');          
 %             subplot(2,3,1)
 %             boundedline(t,avgpimcount_h, sdpimcount_h);ylabel('Pro-inflammatory count');xlabel('hours');
@@ -347,30 +365,22 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
 %             boundedline(t,avgrecruit_h,sdrecruit_h);ylabel('Macrophages recruited');xlabel('hours');
 %         end
         
-        if model.toggleLayeredFigure
-            %%% healthy outcome
-            figure('name','Results: Healthy Outcome')
-            a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgfcount_h]');
-            a(1).FaceColor = [199 199 199]/255; % M0
-            a(2).FaceColor = [255 133 194]/255; % M1
-            a(3).FaceColor = [255 253 128]/255; % intermediate
-            a(4).FaceColor = [161 176 255]/255; % M2
-            a(5).FaceColor = [255 0 0]/255; %F
-            xlabel('hours')
-            ylabel('Macrophages')
-            legend('M0','M1','Intermediate','M2','F')
-            set(gca,'fontsize',16)
-            %%% inflamed outcome
-%             figure('name','Results: Inflamed Outcome')
-%             a=area(t,[avgm0count_i; avgm1count_i; avgintcount_i; avgm2count_i]');
-%             a(1).FaceColor = [199 199 199]/255; % M0 light grey
-%             a(2).FaceColor = [255 133 194]/255; % M1 pink
-%             a(3).FaceColor = [255 253 128]/255; % intermediate yellow
-%             a(4).FaceColor = [161 176 255]/255; % M2 light blue
+%         if model.toggleLayeredFigure
+%             %%% healthy outcome
+%             figure('name','Results: Healthy Outcome')
+%             a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h avgf1count_h]');
+%             a(1).FaceColor = [199 199 199]/255; % M0
+%             a(2).FaceColor = [255 133 194]/255; % M1
+%             a(3).FaceColor = [255 253 128]/255; % intermediate
+%             a(4).FaceColor = [161 176 255]/255; % M2
+%             a(5).FaceColor = [255 0 0]/255; %F0
+%              a(6).FaceColor = [0 255 0]/255; %F1
 %             xlabel('hours')
-%             ylabel('Macrophages')
-%             legend('M0','M1','Intermediate','M2')
-        end
+%             ylabel('Cells')
+%             legend('M0','M1','Intermediate','M2','F0','F1')
+%             set(gca,'fontsize',16)
+% 
+%         end
         
         % plot results
 %         if(model.SingleMacWriteUpFigures) % single macrophage model

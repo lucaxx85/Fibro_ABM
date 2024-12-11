@@ -1,6 +1,6 @@
 function diffused = diffuse(mat)
             % Given a matrix containing a fluid intensity (0 to 1),
-            % diffuse the fluid across the matrix evenly.
+            % diffuse the fluid across the matrix evenly.%% 
             [m, n] = size(mat);
             
             up = [2:m 1];

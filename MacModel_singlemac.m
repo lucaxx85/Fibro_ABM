@@ -27,8 +27,9 @@ classdef MacModel_singlemac < handle
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
         InitialF0Count=0;
         InitialF1Count=0;
-        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
+        InitialPIM = 0;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
         InitTotalPIM = 0;  %somma sui pixel di initialPIM
+        InitTotalPIM_fixed = 0;  %somma sui pixel di initialPIM
         InitialAIM = 0;
         InitTotalAIM = 0;
         InitialSOCS = 0;
@@ -36,8 +37,8 @@ classdef MacModel_singlemac < handle
         AgeStDevM0 = 6;
         AgeMeanActivated = 48; 
         AgeStDevActivated = 12;
-        AgeMeanF0=24;  %1368
-        AgeStDevF0=6;
+        AgeMeanF0=24*7;  %1368
+        AgeStDevF0=6*7;
         AgeMeanF1=336;  %1368
         AgeStDevF1=84;   %72
         Outcome = Outcomes.Healthy;
@@ -185,6 +186,7 @@ classdef MacModel_singlemac < handle
 %              this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,0.5,'FilterDomain','frequency');
 %             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice+this.ProInflammatoryLattice_fixed));
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
+            this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             this.AntiInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3)) = this.InitialAIM;
             this.InitTotalAIM=sum(sum(this.AntiInflammatoryLattice));
@@ -277,7 +279,7 @@ classdef MacModel_singlemac < handle
 
 
                     set(0, 'CurrentFigure', proinflammatory_h);
-                    imagesc(this.ProInflammatoryLattice,[0 4]);
+                    imagesc(this.ProInflammatoryLattice,[0 10]);
                     colormap(autumn);
                     axis square;
                     set(gca, 'XTick', [], ...
@@ -297,7 +299,7 @@ classdef MacModel_singlemac < handle
 %                     title('fixed PIM')
 
                     set(0, 'CurrentFigure', antiinflammatory_h);
-                    imagesc(this.AntiInflammatoryLattice,[0 4]);
+                    imagesc(this.AntiInflammatoryLattice,[0 10]);
                     colormap(cool);
                     axis square;
                     set(gca, 'XTick', [], ...
@@ -316,7 +318,7 @@ classdef MacModel_singlemac < handle
                     %                      'YTickLabel', '');
 
                     set(0, 'CurrentFigure', m1activation_h);
-                    imagesc(this.M1ActivationLattice,[0 0.5]);
+                    imagesc(this.M1ActivationLattice,[0 1]);
                     colormap(autumn);
                     axis square;
                     set(gca, 'XTick', [], ...
@@ -326,7 +328,7 @@ classdef MacModel_singlemac < handle
                     title('M1 activation')
 
                     set(0, 'CurrentFigure', m2activation_h);
-                    imagesc(this.M2ActivationLattice,[0 0.5]);
+                    imagesc(this.M2ActivationLattice,[0 1]);
                     colormap(cool);
                     axis square;
                     set(gca, 'XTick', [], ...
@@ -338,7 +340,7 @@ classdef MacModel_singlemac < handle
 
 
                     set(0, 'CurrentFigure', factivation_h);
-                    imagesc(this.F1ActivationLattice,[0 0.5]);
+                    imagesc(this.F1ActivationLattice,[0 1]);
                     colormap(jet); %change color
                     axis square;
                     set(gca, 'XTick', [], ...

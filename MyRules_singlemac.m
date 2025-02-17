@@ -17,10 +17,12 @@ properties (SetAccess = public)
     M2CountsSquared;
     TotalMacs;
     TotalMacsSquared;
-%     TotalFibro;
-%     TotalFibroSquared;
-    ProInflammatoryCounts;   
+    %     TotalFibro;
+    %     TotalFibroSquared;
+    ProInflammatoryCounts;
     ProInflammatoryCountsSquared;
+    ProInflammatoryCounts_fixed;
+    ProInflammatoryCountsSquared_fixed;
     AntiInflammatoryCounts;
     AntiInflammatoryCountsSquared;   %dobbiamo poterlo osservare anche senza mettere AIM in ingresso, è TGF-beta
     SOCSCounts;
@@ -125,6 +127,8 @@ methods
             rule.Results{i}.TotalMacsSquared = zeros(1, model.MaxGenerations);
             rule.Results{i}.ProInflammatoryCounts = zeros(1, model.MaxGenerations);
             rule.Results{i}.ProInflammatoryCountsSquared = zeros(1, model.MaxGenerations);
+             rule.Results{i}.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
+            rule.Results{i}.ProInflammatoryCountsSquared_fixed = zeros(1, model.MaxGenerations);
             rule.Results{i}.AntiInflammatoryCounts = zeros(1, model.MaxGenerations);
             rule.Results{i}.AntiInflammatoryCountsSquared = zeros(1, model.MaxGenerations);
             rule.Results{i}.SOCSCounts = zeros(1, model.MaxGenerations);
@@ -339,6 +343,7 @@ methods
         this.ImmuneCellCounts(model.CurrentGeneration) = sum(model.ImmuneLattice(:) == 1);
         %         this.ProInflammatoryCounts(model.CurrentGeneration) = sum(model.ProInflammatoryLattice(:)+model.ProInflammatoryLattice_fixed(:));
         this.ProInflammatoryCounts(model.CurrentGeneration) = sum(model.ProInflammatoryLattice(:));
+        this.ProInflammatoryCounts_fixed(model.CurrentGeneration) = sum(model.ProInflammatoryLattice_fixed(:));
         this.AntiInflammatoryCounts(model.CurrentGeneration) = sum(model.AntiInflammatoryLattice(:));
         this.SOCSCounts(model.CurrentGeneration) = sum(model.SOCSLattice(:));
         this.IntermediateCounts(model.CurrentGeneration) = sum(model.ImmuneLattice(:) == 8);
@@ -385,6 +390,7 @@ methods
         % Set up the arrays holding the transient plot data.
         this.ImmuneCellCounts = zeros(1, model.MaxGenerations);
         this.ProInflammatoryCounts = zeros(1, model.MaxGenerations);
+        this.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
         this.AntiInflammatoryCounts = zeros(1, model.MaxGenerations);
         this.SOCSCounts = zeros(1, model.MaxGenerations);
         this.IntermediateCounts = zeros(1, model.MaxGenerations);
@@ -634,17 +640,21 @@ methods
         this.Results{model.Outcome}.ImmuneCellCounts = this.Results{model.Outcome}.ImmuneCellCounts + model.Rules{1}.Results{model.Outcome}.ImmuneCellCounts;
         this.Results{model.Outcome}.ImmuneCellCountsSquared = this.Results{model.Outcome}.ImmuneCellCountsSquared + (model.Rules{1}.Results{model.Outcome}.ImmuneCellCounts .^ 2);
         this.Results{model.Outcome}.IntermediateCounts = this.Results{model.Outcome}.IntermediateCounts + model.Rules{1}.Results{model.Outcome}.IntermediateCounts;
-        this.Results{model.Outcome}.IntermediateCountsSquared = this.Results{model.Outcome}.IntermediateCountsSquared + (model.Rules{1}.Results{model.Outcome}.IntermediateCounts .^ 2);        
+        this.Results{model.Outcome}.IntermediateCountsSquared = this.Results{model.Outcome}.IntermediateCountsSquared + (model.Rules{1}.Results{model.Outcome}.IntermediateCounts .^ 2);
         this.Results{model.Outcome}.M1Counts = this.Results{model.Outcome}.M1Counts + model.Rules{1}.Results{model.Outcome}.M1Counts;
         this.Results{model.Outcome}.M1CountsSquared = this.Results{model.Outcome}.M1CountsSquared + (model.Rules{1}.Results{model.Outcome}.M1Counts .^ 2);
         this.Results{model.Outcome}.M2Counts = this.Results{model.Outcome}.M2Counts + model.Rules{1}.Results{model.Outcome}.M2Counts;
         this.Results{model.Outcome}.M2CountsSquared = this.Results{model.Outcome}.M2CountsSquared + (model.Rules{1}.Results{model.Outcome}.M2Counts .^ 2);
         this.Results{model.Outcome}.TotalMacs = this.Results{model.Outcome}.TotalMacs + model.Rules{1}.Results{model.Outcome}.TotalMacs;
-        this.Results{model.Outcome}.TotalMacsSquared = this.Results{model.Outcome}.TotalMacsSquared + (model.Rules{1}.Results{model.Outcome}.TotalMacs .^ 2);        
-%         this.Results{model.Outcome}.TotalFibro = this.Results{model.Outcome}.TotalFibro + model.Rules{1}.Results{model.Outcome}.TotalFibro;
-%         this.Results{model.Outcome}.TotalFibroSquared = this.Results{model.Outcome}.TotalFibroSquared + (model.Rules{1}.Results{model.Outcome}.TotalFibro .^ 2);        
+        this.Results{model.Outcome}.TotalMacsSquared = this.Results{model.Outcome}.TotalMacsSquared + (model.Rules{1}.Results{model.Outcome}.TotalMacs .^ 2);
+        %         this.Results{model.Outcome}.TotalFibro = this.Results{model.Outcome}.TotalFibro + model.Rules{1}.Results{model.Outcome}.TotalFibro;
+        %         this.Results{model.Outcome}.TotalFibroSquared = this.Results{model.Outcome}.TotalFibroSquared + (model.Rules{1}.Results{model.Outcome}.TotalFibro .^ 2);
         this.Results{model.Outcome}.ProInflammatoryCounts = this.Results{model.Outcome}.ProInflammatoryCounts + model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts;
         this.Results{model.Outcome}.ProInflammatoryCountsSquared = this.Results{model.Outcome}.ProInflammatoryCountsSquared + (model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts .^ 2);
+
+        this.Results{model.Outcome}.ProInflammatoryCounts_fixed = this.Results{model.Outcome}.ProInflammatoryCounts_fixed + model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed;
+        this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed = this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed + (model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed .^ 2);
+
         this.Results{model.Outcome}.AntiInflammatoryCounts = this.Results{model.Outcome}.AntiInflammatoryCounts + model.Rules{1}.Results{model.Outcome}.AntiInflammatoryCounts;
         this.Results{model.Outcome}.AntiInflammatoryCountsSquared = this.Results{model.Outcome}.AntiInflammatoryCountsSquared + (model.Rules{1}.Results{model.Outcome}.AntiInflammatoryCounts .^ 2);
         this.Results{model.Outcome}.SOCSCounts = this.Results{model.Outcome}.SOCSCounts + model.Rules{1}.Results{model.Outcome}.SOCSCounts;

@@ -8,8 +8,8 @@ properties (SetAccess = public)
     rule;
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
-    Runs = 1;  %number of simulations
-    hours = 36; 
+    Runs = 1  %number of simulations
+    hours = 120; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
 end
@@ -84,6 +84,7 @@ function run(this)
 
         this.Rule.Results{model.Outcome}.ProbRecruited_f = this.Rule.Results{model.Outcome}.ProbRecruited_f + model.Rules{1}.ProbRecruited_f;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f = this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f + (model.Rules{1}.ProbRecruited_f .^ 2);
+        this.Rule.Results{model.Outcome}.contatore = this.Rule.Results{model.Outcome}.contatore + model.Rules{1}.contatore;
 
 
     end
@@ -126,6 +127,7 @@ function run(this)
 
         this.Rule.Results{model.Outcome}.ProbRecruited_f = this.Rule.Results{model.Outcome}.ProbRecruited_f / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f = this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f / this.Rule.Results{model.Outcome}.Runs;
+        this.Rule.Results{model.Outcome}.contatore = this.Rule.Results{model.Outcome}.contatore / this.Rule.Results{model.Outcome}.Runs;
 
         % convert to vectors
         %%% healthy outcome
@@ -135,6 +137,7 @@ function run(this)
         avgm2count_h = [this.Models{i}.InitialM2Count (this.Rule.Results{1}.M2Counts)];
         avgf0count_h = [this.Models{i}.InitialF0Count (this.Rule.Results{1}.F0Counts)];
         avgf1count_h = [this.Models{i}.InitialF1Count (this.Rule.Results{1}.F1Counts)];
+        contatore_h = [0 (this.Rule.Results{1}.contatore)];
 
         avgtotalmacs_h = [avgm0count_h(1)+avgm1count_h(1)+avgm2count_h(1) (this.Rule.Results{1}.TotalMacs)];
 %         avgtotalfibro_h = [avgf0count_h(1)+avgf1count_h(1) (this.Rule.Results{1}.TotalFibro)];
@@ -271,6 +274,8 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         this.Rule.Results{1}.recruitedfibro = avgrecruit_f_h;
         this.Rule.Results{1}.sdrecruitedmac = sdrecruit_h;
         this.Rule.Results{1}.sdrecruitedfibro = sdrecruit_f_h;
+        this.Rule.Results{1}.contatore = contatore_h;
+
         %inflammed (added)
 %         this.Rule.Results{2}.avgm1act = avgm1act_i;
 %         this.Rule.Results{2}.avgm2act = avgm2act_i;
@@ -365,22 +370,28 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
 %             boundedline(t,avgrecruit_h,sdrecruit_h);ylabel('Macrophages recruited');xlabel('hours');
 %         end
         
-%         if model.toggleLayeredFigure
-%             %%% healthy outcome
-%             figure('name','Results: Healthy Outcome')
-%             a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h avgf1count_h]');
-%             a(1).FaceColor = [199 199 199]/255; % M0
-%             a(2).FaceColor = [255 133 194]/255; % M1
-%             a(3).FaceColor = [255 253 128]/255; % intermediate
-%             a(4).FaceColor = [161 176 255]/255; % M2
-%             a(5).FaceColor = [255 0 0]/255; %F0
-%              a(6).FaceColor = [0 255 0]/255; %F1
-%             xlabel('hours')
-%             ylabel('Cells')
-%             legend('M0','M1','Intermediate','M2','F0','F1')
-%             set(gca,'fontsize',16)
-% 
-%         end
+        if model.toggleLayeredFigure
+            %%% healthy outcome
+            f = figure('name','Results: Healthy Outcome');
+            set(gcf, 'Position', get(0, 'Screensize'));
+            a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h;avgf1count_h]');
+            a(1).FaceColor = [199 199 199]/255; % M0
+            a(2).FaceColor = [255 133 194]/255; % M1
+            a(3).FaceColor = [255 253 128]/255; % intermediate
+            a(4).FaceColor = [161 176 255]/255; % M2
+            a(5).FaceColor = [255 0 0]/255; %F0
+            a(6).FaceColor = [128 0 0]/255; %F1
+            v = ylabel('Cells');
+            h=xlabel('hours');
+            set(h, 'FontSize', 30)
+            set(v, 'FontSize', 30)
+            xlim([0 120])
+            legend('M0','M1','Intermediate','M2','F0','F1','Location','best','Orientation','horizontal')
+            set(gca,'fontsize',30)
+%             savefig('Count_cells_M0_400_30h_patho_k_2.fig')
+%             saveas(f,'Count_cells_M0_400_30h_patho_k_2','epsc');
+
+        end
         
         % plot results
 %         if(model.SingleMacWriteUpFigures) % single macrophage model

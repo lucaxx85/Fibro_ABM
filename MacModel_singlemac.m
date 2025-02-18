@@ -27,7 +27,7 @@ classdef MacModel_singlemac < handle
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
         InitialF0Count=0;
         InitialF1Count=0;
-        InitialPIM = 0;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
+        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
         InitTotalPIM = 0;  %somma sui pixel di initialPIM
         InitTotalPIM_fixed = 0;  %somma sui pixel di initialPIM
         InitialAIM = 0;
@@ -186,7 +186,8 @@ classdef MacModel_singlemac < handle
 %              this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,0.5,'FilterDomain','frequency');
 %             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice+this.ProInflammatoryLattice_fixed));
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
-            this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
+%
+%this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             this.AntiInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3)) = this.InitialAIM;
             this.InitTotalAIM=sum(sum(this.AntiInflammatoryLattice));

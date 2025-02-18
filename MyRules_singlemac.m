@@ -21,8 +21,8 @@ properties (SetAccess = public)
     %     TotalFibroSquared;
     ProInflammatoryCounts;
     ProInflammatoryCountsSquared;
-    ProInflammatoryCounts_fixed;
-    ProInflammatoryCountsSquared_fixed;
+   % ProInflammatoryCounts_fixed;
+   % ProInflammatoryCountsSquared_fixed;
     AntiInflammatoryCounts;
     AntiInflammatoryCountsSquared;   %dobbiamo poterlo osservare anche senza mettere AIM in ingresso, è TGF-beta
     SOCSCounts;
@@ -127,8 +127,8 @@ methods
             rule.Results{i}.TotalMacsSquared = zeros(1, model.MaxGenerations);
             rule.Results{i}.ProInflammatoryCounts = zeros(1, model.MaxGenerations);
             rule.Results{i}.ProInflammatoryCountsSquared = zeros(1, model.MaxGenerations);
-             rule.Results{i}.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
-            rule.Results{i}.ProInflammatoryCountsSquared_fixed = zeros(1, model.MaxGenerations);
+  %           rule.Results{i}.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
+    %        rule.Results{i}.ProInflammatoryCountsSquared_fixed = zeros(1, model.MaxGenerations);
             rule.Results{i}.AntiInflammatoryCounts = zeros(1, model.MaxGenerations);
             rule.Results{i}.AntiInflammatoryCountsSquared = zeros(1, model.MaxGenerations);
             rule.Results{i}.SOCSCounts = zeros(1, model.MaxGenerations);
@@ -201,111 +201,35 @@ methods
            this.ProbRecruited_f(model.CurrentGeneration)=mean(mean(this.ProbFCellArrives));
 
            load indices_circular_crown.mat
-           temp = (rand(size(model.ImmuneLattice)) < this.ProbImmuneCellArrives) & (~ismember(model.ImmuneLattice,[1 4 6 8 10 12]));
+           indices = sub2ind([40,40],indices(:,1),indices(:,2));
+           currCor = model.ImmuneLattice(indices);
+           temp = (rand(size(indices)) < mean(this.ProbImmuneCellArrives(:))) & (~ismember(currCor,[1 4 6 8 10 12]));
            this.RecruitedCells(model.CurrentGeneration)=sum(sum(temp)); % number of macrophages recruited
+           model.ImmuneLattice(indices(temp)) = ImmuneStates.M0Static;
+           model.ImmuneAge(indices(temp)) = (this.AgeStDevM0*randn(size(temp(temp)))+this.AgeMeanM0)*60/this.GenerationSize;
 
-           % gli elementi uguali a 1 in temp devono essere messi sulla corona
-           % circolare, in maniera casuale negli elementi con coordinate indices
-           % di ImmuneLattice
 
-           for i = 1:40
-               for j = 1:40
-                   if temp(i,j) == 1
-                       indice_casuale = randi([1, 612]);
-                       riga = indices(indice_casuale, 1);
-                       colonna = indices(indice_casuale, 2);
-                       temp(riga,colonna) = 1;  %riorganizzo temp affinché ci sia la corona
-                       %model.ImmuneLattice(riga, colonna) = ImmuneStates.M0Static;  %ho spostato l'1 in temp qui
-
-                   end
-               end
-           end
-
-           %            disp(model.ImmuneLattice);
-
-           %            this.RecruitedCells(model.CurrentGeneration)=sum(sum(temp)); % number of macrophages recruited
-           model.ImmuneLattice(temp) = ImmuneStates.M0Static;  %recruitment only of the M0
-
-           % M1 & M2 activation
-           %             temp_m1act=model.ProInflammatoryLattice./(model.ProInflammatoryLattice+this.PIMActivationScale).*(1/1+(model.AntiInflammatoryLattice/this.AIMInfinity));
-           %             temp_m2act=model.AntiInflammatoryLattice./(model.AntiInflammatoryLattice+this.AIMActivationScale);
-%             % if M1act+M2act>1, scaling is needed
-%             if temp_m1act+temp_m2act>1
-%                 temp_sum=temp_m1act+temp_m2act;
-%                 temp_m1act=temp_m1act./temp_sum;
-%                 temp_m2act=temp_m2act./temp_sum;
-%             end
-%             model.M1ActivationLattice(temp) = temp_m1act(temp);
-%             model.M2ActivationLattice(temp) = temp_m2act(temp);
-%             temp_m1=(temp_m1act+temp_m2act)<0.25;
-%             temp_m2=(temp_m1act+temp_m2act)<0.25;
-%             temp_int=(temp_m1act+temp_m2act)<0.25;
-%             temp_naive=(temp_m1act+temp_m2act)<0.25;
-%             % update immune state
-%             % model.ImmuneLattice(temp) = ImmuneStates.M0Static;
-% 
-%             model.ImmuneLattice(temp_naive & temp) = ImmuneStates.M0Static;
-%             model.ImmuneLattice(temp_m1 & temp) = ImmuneStates.M0Static;
-%             model.ImmuneLattice(temp_m2 & temp) = ImmuneStates.M0Static;
-%             model.ImmuneLattice(temp_int & temp) = ImmuneStates.M0Static;
-            % define ages (naive/activated)
-            temp_age_act=ismember(model.ImmuneLattice,[4 6 8]); % activated macrophages
-            ages=round(this.AgeStDevActivated.*randn(size(model.ImmuneLattice)) + this.AgeMeanActivated).*60/this.GenerationSize;
-            model.ImmuneAge(temp_age_act & temp)=ages(temp_age_act & temp);
-            temp_age_m0=model.ImmuneLattice==ImmuneStates.M0Static;
             ages=round(this.AgeStDevM0.*randn(size(model.ImmuneLattice)) + this.AgeMeanM0).*60/this.GenerationSize;
-            model.ImmuneAge(temp_age_m0 & temp)=ages(temp_age_m0 & temp);
+            model.ImmuneAge(indices(temp))=ages(indices(temp));
 
             %aggiungi qui il reclutamento dei fibroblasti
-            temp = (rand(size(model.ImmuneLattice)) < this.ProbFCellArrives) & (~ismember(model.ImmuneLattice,[1 4 6 8 10 12]));  %10 fibrocytes; 12 myofibroblasts
-            this.RecruitedFibroblasts(model.CurrentGeneration)=sum(sum(temp)); % number of fibrocytes recruited
- 
-            for i = 1:40
-                for j = 1:40
-                    if temp(i,j) == 1
-                        indice_casuale = randi([1, 612]);
-                        riga = indices(indice_casuale, 1);
-                        colonna = indices(indice_casuale, 2);
-                        temp(riga, colonna) = 1;  %ho spostato l'1 in temp qui
-                        %                     elseif temp(i,j) == 1 & temp_f1 == 1
-                        %                         indice_casuale = randi([1, 612]);
-                        %                         riga = indices(indice_casuale, 1);
-                        %                         colonna = indices(indice_casuale, 2);
-                        %                         temp(riga, colonna) = 1;  %ho spostato l'1 in temp qui
-                    end
-                end
-            end
 
-            % F1 activation definition
-            temp_f1act=model.AntiInflammatoryLattice./(model.AntiInflammatoryLattice+this.AIMActivationScale); %the same as m2act, so far
-            % if Fact>1, scaling is needed
-            if temp_f1act>1
-                temp_f1act = 1; %lo taglio a 1
-            end
-            model.F1ActivationLattice(temp) = temp_f1act(temp);
-            temp_f1=temp_f1act>0.25 & temp_f1act<=1;%condition over fibroblasts
-            temp_f0=temp_f1act<=0.25;  %condition over fibrocytes (I chose it)
-            % update f state
-%             model.ImmuneLattice(temp_f0 & temp) = ImmuneStates.F0Static;
-%             model.ImmuneLattice(temp_f1 & temp) = ImmuneStates.F1Static;
+            temp = (rand(size(indices)) < mean(this.ProbFCellArrives(:))) & (~ismember(currCor,[1 4 6 8 10 12]));
+            this.RecruitedFibroblasts(model.CurrentGeneration)=sum(sum(temp)); % number of fibrocytes recruited
+            recIdx = indices(temp);
+            
+            temp_FAct = model.AntiInflammatoryLattice(recIdx)./(model.AntiInflammatoryLattice((recIdx))+this.AIMActivationScale);
+            
+            temp_F1 = temp_FAct>0.25;
+            temp_F0 = temp_FAct<0.25;
+            model.ImmuneLattice(recIdx(temp_F0)) = ImmuneStates.F0Static;
+            model.ImmuneLattice(recIdx(temp_F1)) = ImmuneStates.F1Static;
+            model.ImmuneAge(recIdx(temp_F0)) = (this.AgeStDevF0*randn(size(temp_F0(temp_F0)))+this.AgeMeanF0)*60/this.GenerationSize;
+            model.ImmuneAge(recIdx(temp_F1)) = (this.AgeStDevF1*randn(size(temp_F1(temp_F1)))+this.AgeMeanF1)*60/this.GenerationSize;
+
+            model.F1ActivationLattice(recIdx) = temp_FAct;
 
             
-
-            % update f state
-            model.ImmuneLattice(temp_f0 & temp) = ImmuneStates.F0Static;
-            model.ImmuneLattice(temp_f1 & temp) = ImmuneStates.F1Static;
-
-            % define ages (naive/activated)
-
-            temp_age_f0=model.ImmuneLattice==ImmuneStates.F0Static; %fybrocytes
-            ages_f=round(this.AgeStDevF0.*randn(size(model.ImmuneLattice)) + this.AgeMeanF0).*60/this.GenerationSize;
-            model.ImmuneAge(temp_age_f0 & temp)=ages_f(temp_age_f0 & temp);
-
-            temp_age_f1act=ismember(model.ImmuneLattice,12); % activated F
-            ages_f=round(this.AgeStDevF1.*randn(size(model.ImmuneLattice)) + this.AgeMeanF1).*60/this.GenerationSize;
-            model.ImmuneAge(temp_age_f1act & temp)=ages_f(temp_age_f1act & temp);
-
-
             clear temp temp_m1act temp_m2act temp_age_act temp_age_m0 ages;
             clear temp temp_f1act temp_age_f1act ages_f;
             %%%% all immune cells recruit & produce inflammatories
@@ -343,7 +267,7 @@ methods
         this.ImmuneCellCounts(model.CurrentGeneration) = sum(model.ImmuneLattice(:) == 1);
         %         this.ProInflammatoryCounts(model.CurrentGeneration) = sum(model.ProInflammatoryLattice(:)+model.ProInflammatoryLattice_fixed(:));
         this.ProInflammatoryCounts(model.CurrentGeneration) = sum(model.ProInflammatoryLattice(:));
-        this.ProInflammatoryCounts_fixed(model.CurrentGeneration) = sum(model.ProInflammatoryLattice_fixed(:));
+%        this.ProInflammatoryCounts_fixed(model.CurrentGeneration) = sum(model.ProInflammatoryLattice_fixed(:));
         this.AntiInflammatoryCounts(model.CurrentGeneration) = sum(model.AntiInflammatoryLattice(:));
         this.SOCSCounts(model.CurrentGeneration) = sum(model.SOCSLattice(:));
         this.IntermediateCounts(model.CurrentGeneration) = sum(model.ImmuneLattice(:) == 8);
@@ -390,7 +314,7 @@ methods
         % Set up the arrays holding the transient plot data.
         this.ImmuneCellCounts = zeros(1, model.MaxGenerations);
         this.ProInflammatoryCounts = zeros(1, model.MaxGenerations);
-        this.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
+        %this.ProInflammatoryCounts_fixed = zeros(1, model.MaxGenerations);
         this.AntiInflammatoryCounts = zeros(1, model.MaxGenerations);
         this.SOCSCounts = zeros(1, model.MaxGenerations);
         this.IntermediateCounts = zeros(1, model.MaxGenerations);
@@ -424,8 +348,8 @@ methods
         pimGradX = conv2 (model.ProInflammatoryLattice,gradXM,'same');
         pimGradY = conv2 (model.ProInflammatoryLattice,gradYM,'same');
 
-        dxProb = -pimGradX*0.02/10;
-        dyProb = -pimGradY*0.02/10;
+        dxProb = -pimGradX*0.5; %/10;
+        dyProb = -pimGradY*0.5; %/10;
 
         dxProb(abs(dxProb)>1)= sign (dxProb(abs(dxProb)>1));
         dyProb(abs(dyProb)>1)= sign (dyProb(abs(dyProb)>1));
@@ -652,8 +576,9 @@ methods
         this.Results{model.Outcome}.ProInflammatoryCounts = this.Results{model.Outcome}.ProInflammatoryCounts + model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts;
         this.Results{model.Outcome}.ProInflammatoryCountsSquared = this.Results{model.Outcome}.ProInflammatoryCountsSquared + (model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts .^ 2);
 
-        this.Results{model.Outcome}.ProInflammatoryCounts_fixed = this.Results{model.Outcome}.ProInflammatoryCounts_fixed + model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed;
-        this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed = this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed + (model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed .^ 2);
+       % this.Results{model.Outcome}.ProInflammatoryCounts_fixed = this.Results{model.Outcome}.ProInflammatoryCounts_fixed + model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed;
+       %
+       % this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed = this.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed + (model.Rules{1}.Results{model.Outcome}.ProInflammatoryCounts_fixed .^ 2);
 
         this.Results{model.Outcome}.AntiInflammatoryCounts = this.Results{model.Outcome}.AntiInflammatoryCounts + model.Rules{1}.Results{model.Outcome}.AntiInflammatoryCounts;
         this.Results{model.Outcome}.AntiInflammatoryCountsSquared = this.Results{model.Outcome}.AntiInflammatoryCountsSquared + (model.Rules{1}.Results{model.Outcome}.AntiInflammatoryCounts .^ 2);

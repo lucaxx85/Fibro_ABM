@@ -36,8 +36,8 @@ classdef MacModel_singlemac < handle
         AgeStDevM0 = 6;
         AgeMeanActivated = 48; 
         AgeStDevActivated = 12;
-        AgeMeanF0=24*7;  %1368
-        AgeStDevF0=6*7;
+        AgeMeanF0=24;  %1368
+        AgeStDevF0=6;
         AgeMeanF1=336;  %1368
         AgeStDevF1=84;   %72
         Outcome = Outcomes.Healthy;
@@ -52,7 +52,7 @@ classdef MacModel_singlemac < handle
         InitialMatrix;
         Rules;
         RuleSet = {'MyRules_singlemac'};
-        Debug = false;
+        Debug = true;
         %                     M0          blank   problem  M1           problem  M2           problem  intermediate   problem
         ImmuneColorMap = [255 255 255; 0 0 0; 0 255 0; 255 0 255; 0 255 0; 0 0 255; 0 255 0; 255 255 0; 0 255 0; 255 0 0; 0 255 0; 128 0 0] / 255;
 %            ImmuneColorMap = [255 255 255; 0 0 0; 255 133 194;  161 176 255; 255 253 128; 0 255 0; 128 0 0] / 255;
@@ -180,9 +180,8 @@ classdef MacModel_singlemac < handle
             [n,~]=size(this.InitialImmuneMatrix);
             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= this.InitialPIM;  %location of PIM stimulus
             this.ProInflammatoryLattice_fixed(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= 2;  %location of the fixed PIM stimulus
+%             this.ProInflammatoryLattice_fixed(18:22,18:22)= 2;  %location of the fixed PIM stimulus
             this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,2);   %blurred PIM with a gaussian filter
-            %              this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,0.5,'FilterDomain','frequency');
-            %             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice+this.ProInflammatoryLattice_fixed));
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
             this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
@@ -267,11 +266,15 @@ classdef MacModel_singlemac < handle
                     set(gca, 'XTick', [], ...
                         'YTick', [], ...
                         'XTickLabel', '', ...
-                        'YTickLabel', '');
+                        'YTickLabel', '','FontSize',16);
                     title(sprintf('Total time (Hours) %f', generation/(60/this.GenerationSize))); %MUST CHANGE IF YOU CHANGE GENERATION SIZE
+                    colorbar('TickLabels',{'M0','M1','M2','Interm.','F0','F1'},'FontSize',14)
+%                     savefig('Frame_M0_400_36h_mech_k_05_smaller_implant.fig')
+%                     saveas(gca,'Frame_M400_0_36h_mech_k_05_smaller_implant','epsc');
+
 
                     set(0, 'CurrentFigure', proinflammatory_h);
-                    imagesc(this.ProInflammatoryLattice,[0 10]);
+                    imagesc(this.ProInflammatoryLattice);
                     colormap(autumn);
                     axis square;
                     set(gca, 'XTick', [], ...

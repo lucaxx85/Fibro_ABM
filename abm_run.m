@@ -377,19 +377,24 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         
         if model.toggleLayeredFigure
             %%% healthy outcome
-            figure('name','Results: Healthy Outcome')
+            f = figure('name','Results: Healthy Outcome');
+            set(gcf, 'Position', get(0, 'Screensize'));
             a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h;avgf1count_h]');
             a(1).FaceColor = [199 199 199]/255; % M0
             a(2).FaceColor = [255 133 194]/255; % M1
             a(3).FaceColor = [255 253 128]/255; % intermediate
             a(4).FaceColor = [161 176 255]/255; % M2
             a(5).FaceColor = [255 0 0]/255; %F0
-             a(6).FaceColor = [128 0 0]/255; %F1
-            xlabel('hours')
-            ylabel('Cells')
+            a(6).FaceColor = [128 0 0]/255; %F1
+            v = ylabel('Cells');
+            h=xlabel('hours');
+            set(h, 'FontSize', 30)
+            set(v, 'FontSize', 30)
             xlim([0 120])
-            legend('M0','M1','Intermediate','M2','F0','F1')
-            set(gca,'fontsize',16)
+            legend('M0','M1','Intermediate','M2','F0','F1','Location','best','Orientation','horizontal')
+            set(gca,'fontsize',30)
+%             savefig('Count_cells_M0_400_36h_mech_k_05_smaller_implant.fig')
+%             saveas(f,'Count_cells_M0_400_36h_mech_k_05_smaller_implant','epsc');
 
         end
         

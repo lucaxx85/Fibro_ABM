@@ -189,7 +189,7 @@ methods
             end
             if (model.ToggleRecruitment_f)
                 % this.ProbFCellArrives = model.AntiInflammatoryLattice.^2./(model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm;
-                %                this.ProbFCellArrives = (0.1*model.ProInflammatoryLattice+model.ProInflammatoryLattice_fixed+(1-this.AIMRecruitScale)*model.AntiInflammatoryLattice).^2./((0.1*model.ProInflammatoryLattice+model.ProInflammatoryLattice_fixed+(1-this.AIMRecruitScale)*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
+                %                this.ProbFCellArrives = (0.1*modce+model.ProInflammatoryLattice_fixed+(1-this.AIMRecruitScale)*model.AntiInflammatoryLattice).^2./((0.1*model.ProInflammatoryLattice+model.ProInflammatoryLattice_fixed+(1-this.AIMRecruitScale)*model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
 
                 this.ProbFCellArrives = (0.5*model.ProInflammatoryLattice+0.2*model.ProInflammatoryLattice_fixed+model.AntiInflammatoryLattice).^2./((0.5*model.ProInflammatoryLattice+0.2*model.ProInflammatoryLattice_fixed+model.AntiInflammatoryLattice).^2+this.RecruitmentFFTerm^2);
 
@@ -202,6 +202,9 @@ methods
 
             %new
             load indices_circular_crown.mat
+
+           indices = sub2ind([40,40],indices(:,1),indices(:,2));
+           currCor = model.ImmuneLattice(indices);
            temp = (rand(size(indices)) < mean(this.ProbImmuneCellArrives(:))) & (~ismember(currCor,[1 4 6 8 10 12]));
            this.RecruitedCells(model.CurrentGeneration)=sum(sum(temp)); % number of macrophages recruited
            model.ImmuneLattice(indices(temp)) = ImmuneStates.M0Static;
@@ -227,8 +230,7 @@ methods
             model.ImmuneAge(recIdx(temp_F1)) = (this.AgeStDevF1*randn(size(temp_F1(temp_F1)))+this.AgeMeanF1)*60/this.GenerationSize;
 
             model.F1ActivationLattice(recIdx) = temp_FAct;
-
-            
+ 
             clear temp temp_m1act temp_m2act temp_age_act temp_age_m0 ages;
             clear temp temp_f1act temp_age_f1act ages_f;
             %%%% all immune cells recruit & produce inflammatories
@@ -335,6 +337,7 @@ methods
 
     function moveImmuneCells(this)
         model = this.Model;
+        
         %change the space to where the immune cells moves to 3. If the
         %cell cannot move, change the space its on to 3. at the end,
         %change all 3s to 1s.
@@ -412,7 +415,7 @@ methods
                     if i~=ii || j ~= jj
                         model.ImmuneAge(i,j) = 0;
                         model.contatore = model.contatore+1;
-                        display(model.contatore)
+                   %     display(model.contatore)
                     end
 
                     % fibroflag = model.ImmuneLattice(i,j) == ImmuneStates.F0Static;
@@ -444,9 +447,9 @@ methods
                             *1/(1+(model.SOCSLattice(ii,jj)/this.M1SOCSInfinity)^2), 1-oldm1act-oldm2act]);
 
                         % decrease M1 expression via AIM
-                        model.M1ActivationLattice(ii,jj)=max([model.M1ActivationLattice(ii,jj)-this.M1DecreaseViaAIM*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M1DecreaseViaAIMHill), 0]);
+                        model.M1ActivationLattice(ii,jj)=oldm1act+min([this.M1ActivationRate*pim_fun(model.ProInflammatoryLattice(ii,jj)+model.ProInflammatoryLattice_fixed(ii,jj))*normrnd(1,0.25)...
+                            *1/(1+(model.SOCSLattice(ii,jj)/this.M1SOCSInfinity)^2), 1-oldm1act-oldm2act]);                        % increase M2 expression via AIM
 
-                        % increase M2 expression via AIM
                         model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*model.AntiInflammatoryLattice(ii,jj)^4/(model.AntiInflammatoryLattice(ii,jj)^4+this.M2ActHillParameter^4)*normrnd(1,0.25)...
                             *1/(1+(model.SOCSLattice(ii,jj)/this.M2SOCSInfinity)^2), 1-oldm1act-oldm2act]);
                         %  model.M2ActivationLattice(ii,jj)=oldm2act+min([this.M2ActScalar*aim_fun(model.AntiInflammatoryLattice(ii,jj),this.M2ActHillParameter)*normrnd(1,0.25)...
@@ -513,7 +516,7 @@ methods
                         if i~=ii || j ~= jj
                             model.ImmuneLattice(i,j) = ImmuneStates.Empty;
                             model.contatore = model.contatore+1;
-                            display(model.contatore)
+                        %    display(model.contatore)
                         end
 
 
@@ -597,6 +600,7 @@ methods
         this.Results{model.Outcome}.RecruitedFibroblasts = this.Results{model.Outcome}.RecruitedFibroblastsSquared + (model.Rules{1}.Results{model.Outcome}.RecruitedFibroblasts.^ 2);
         this.Results{model.Outcome}.ProbRecruited_f = this.Results{model.Outcome}.ProbRecruited_f + model.Rules{1}.Results{model.Outcome}.ProbRecruited_f;
         this.Results{model.Outcome}.ProbRecruitedSquared_f = this.Results{model.Outcome}.ProbRecruitedSquared_f + (model.Rules{1}.Results{model.Outcome}.ProbRecruited_f.^ 2);
+        this.Results{model.Outcome}.contatore = this.Results{model.Outcome}.contatore + model.Rules{1}.Results{model.Outcome}.contatore;
 
     end
     

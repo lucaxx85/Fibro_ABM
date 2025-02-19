@@ -3,6 +3,7 @@ classdef MacModel_singlemac < handle
     properties (SetAccess = public)
         CurrentGeneration = 0;
         PreviousGeneration = 0;
+        CurrentCounter = 0;        
         MaxGenerations;
         GenerationSize = 20; %duration in minutes, must also change in abm_run, MyRules
         ImmuneLattice; %qui dentro aggiungiamo i fibroblasti
@@ -20,7 +21,7 @@ classdef MacModel_singlemac < handle
         InitialImmuneAge;
         ImmuneAge;  %è l'etá di tutto il lattice (M + F)
         InitialImmuneMatrix;
-        InitialImmuneCount=0;  %numero iniziale di macrofagi (default 1) sono in M0
+        InitialImmuneCount=400;  %numero iniziale di macrofagi (default 1) sono in M0
         InitialM1Count=0;  %numero di macrofagi che si trovano dall'inizio in M1
         InitialM2Count=0;   %numero di macrofagi che si trovano dall'inizio in M2
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
@@ -41,7 +42,7 @@ classdef MacModel_singlemac < handle
         AgeMeanF1=336;  %1368
         AgeStDevF1=84;   %72
         Outcome = Outcomes.Healthy;
-        ShowLattices = true;  %false
+        ShowLattices = false;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
         ToggleRecruitment_f = true; %in vivo sempre true
@@ -51,8 +52,9 @@ classdef MacModel_singlemac < handle
         SingleMacWriteUpFigures = true; %false
         InitialMatrix;
         Rules;
+        contatore=0;
         RuleSet = {'MyRules_singlemac'};
-        Debug = true;
+        Debug = false;
         %                     M0          blank   problem  M1           problem  M2           problem  intermediate   problem
         ImmuneColorMap = [255 255 255; 0 0 0; 0 255 0; 255 0 255; 0 255 0; 0 0 255; 0 255 0; 255 255 0; 0 255 0; 255 0 0; 0 255 0; 128 0 0] / 255;
 %            ImmuneColorMap = [255 255 255; 0 0 0; 255 133 194;  161 176 255; 255 253 128; 0 255 0; 128 0 0] / 255;
@@ -195,6 +197,7 @@ classdef MacModel_singlemac < handle
 
             this.CurrentGeneration = 0;
             this.PreviousGeneration = 0;
+            this.CurrentCounter = 0;
 
             for i = 1:length(this.Rules)
                 rule = this.Rules{i};
@@ -256,6 +259,7 @@ classdef MacModel_singlemac < handle
             for generation = 1:this.MaxGenerations
                 this.CurrentGeneration = generation;
                 this.PreviousGeneration = generation-1;
+                this.CurrentCounter = this.contatore;
 
                 if this.ShowLattices
                     % Update the immune cell lattice window

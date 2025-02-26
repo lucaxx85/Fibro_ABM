@@ -55,7 +55,7 @@ classdef MacModel_singlemac < handle
         Rules;
         contatore = 0;
         RuleSet = {'MyRules_singlemac'};
-        Debug = false;
+        Debug = true;
         %                     M0          blank   problem  M1           problem  M2           problem  intermediate   problem
         ImmuneColorMap = [255 255 255; 0 0 0; 0 255 0; 255 0 255; 0 255 0; 0 0 255; 0 255 0; 255 255 0; 0 255 0; 255 0 0; 0 255 0; 128 0 0] / 255;
 %            ImmuneColorMap = [255 255 255; 0 0 0; 255 133 194;  161 176 255; 255 253 128; 0 255 0; 128 0 0] / 255;
@@ -182,9 +182,16 @@ classdef MacModel_singlemac < handle
             this.ImmuneLattice = this.InitialImmuneMatrix;
             this.ImmuneAge = this.InitialImmuneAge;
             this.ProInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
+%             this.ProInflammatoryLattice_fixed = zeros(size(this.InitialImmuneMatrix));
             [n,~]=size(this.InitialImmuneMatrix);
             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= F_norm;  %location of PIM stimulus
+%             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= this.InitialPIM;  %location of PIM stimulus
+%             this.ProInflammatoryLattice_fixed(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= 0.5;  %location of the fixed PIM stimulus
+            this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,2);   %blurred PIM with a gaussian filter
+%              this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,0.5,'FilterDomain','frequency');
+%             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice+this.ProInflammatoryLattice_fixed));
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
+
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             this.AntiInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3)) = this.InitialAIM;
             this.InitTotalAIM=sum(sum(this.AntiInflammatoryLattice));
@@ -224,6 +231,10 @@ classdef MacModel_singlemac < handle
 %                 proinflammatory_h_fix = figure;
 %                 set(proinflammatory_h_fix, 'Name', 'Pro-inflammatory Fixed Stimulus');
 %                 title('Biomaterial')
+
+                proinflammatory_h_fix = figure;
+                set(proinflammatory_h_fix, 'Name', 'Pro-inflammatory Fixed Stimulus');
+                title('Biomaterial')
 
 
                 antiinflammatory_h = figure;

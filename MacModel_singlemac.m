@@ -3,12 +3,12 @@ classdef MacModel_singlemac < handle
     properties (SetAccess = public)
         CurrentGeneration = 0;
         PreviousGeneration = 0;
-        CurrentCounter = 0;        
+        CurrentCounter = 0;
         MaxGenerations;
         GenerationSize = 20; %duration in minutes, must also change in abm_run, MyRules
         ImmuneLattice; %qui dentro aggiungiamo i fibroblasti
         ProInflammatoryLattice;
-        ProInflammatoryLattice_fixed;
+%         ProInflammatoryLattice_fixed;
         AntiInflammatoryLattice;
         SOCSLattice;
         M1ActivationLattice;
@@ -21,28 +21,28 @@ classdef MacModel_singlemac < handle
         InitialImmuneAge;
         ImmuneAge;  %è l'etá di tutto il lattice (M + F)
         InitialImmuneMatrix;
-        InitialImmuneCount=400;  %numero iniziale di macrofagi (default 1) sono in M0
+        InitialImmuneCount=0;  %numero iniziale di macrofagi (default 1) sono in M0
         InitialM1Count=0;  %numero di macrofagi che si trovano dall'inizio in M1
         InitialM2Count=0;   %numero di macrofagi che si trovano dall'inizio in M2
         InitialIntCount=0;    %numero di macrofagi che si trovano dall'inizio in M intermedio
         InitialF0Count=0;
         InitialF1Count=0;
-        InitialPIM = 0;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
+        InitialPIM = 30;   %Pro inflammatory stimulus (a.u.)  %10 usato da Luca
         InitTotalPIM = 0;  %somma sui pixel di initialPIM
         InitTotalPIM_fixed = 0;  %somma sui pixel di initialPIM
         InitialAIM = 0;
         InitTotalAIM = 0;
         InitialSOCS = 0;
-        AgeMeanM0 = 24;
+        AgeMeanM0 = 24;   
         AgeStDevM0 = 6;
         AgeMeanActivated = 48; 
         AgeStDevActivated = 12;
-        AgeMeanF0=24;  %1368
-        AgeStDevF0=6;
+        AgeMeanF0=24*7;  %1368
+        AgeStDevF0=6*7;
         AgeMeanF1=336;  %1368
         AgeStDevF1=84;   %72
         Outcome = Outcomes.Healthy;
-        ShowLattices = false;  %false
+        ShowLattices = true;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
         ToggleRecruitment_f = true; %in vivo sempre true
@@ -52,7 +52,7 @@ classdef MacModel_singlemac < handle
         SingleMacWriteUpFigures = true; %false
         InitialMatrix;
         Rules;
-        contatore=0;
+        contatore = 0;
         RuleSet = {'MyRules_singlemac'};
         Debug = false;
         %                     M0          blank   problem  M1           problem  M2           problem  intermediate   problem
@@ -178,14 +178,16 @@ classdef MacModel_singlemac < handle
             this.ImmuneLattice = this.InitialImmuneMatrix;
             this.ImmuneAge = this.InitialImmuneAge;
             this.ProInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
-            this.ProInflammatoryLattice_fixed = zeros(size(this.InitialImmuneMatrix));
+%             this.ProInflammatoryLattice_fixed = zeros(size(this.InitialImmuneMatrix));
             [n,~]=size(this.InitialImmuneMatrix);
             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= this.InitialPIM;  %location of PIM stimulus
-            this.ProInflammatoryLattice_fixed(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= 2;  %location of the fixed PIM stimulus
-%             this.ProInflammatoryLattice_fixed(18:22,18:22)= 2;  %location of the fixed PIM stimulus
+%             this.ProInflammatoryLattice_fixed(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= 0.5;  %location of the fixed PIM stimulus
             this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,2);   %blurred PIM with a gaussian filter
+%              this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,0.5,'FilterDomain','frequency');
+%             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice+this.ProInflammatoryLattice_fixed));
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
-            this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
+%
+%this.InitTotalPIM_fixed=sum(sum(this.ProInflammatoryLattice_fixed));
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             this.AntiInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3)) = this.InitialAIM;
             this.InitTotalAIM=sum(sum(this.AntiInflammatoryLattice));
@@ -198,7 +200,7 @@ classdef MacModel_singlemac < handle
             this.CurrentGeneration = 0;
             this.PreviousGeneration = 0;
             this.CurrentCounter = 0;
-
+            
             for i = 1:length(this.Rules)
                 rule = this.Rules{i};
                 rule.reset();
@@ -222,9 +224,9 @@ classdef MacModel_singlemac < handle
                 set(proinflammatory_h, 'Name', 'Pro-inflammatory Mediators');
                 title('Pro-inflammatory Cells')
 
-                proinflammatory_h_fix = figure;
-                set(proinflammatory_h_fix, 'Name', 'Pro-inflammatory Fixed Stimulus');
-                title('Biomaterial')
+%                 proinflammatory_h_fix = figure;
+%                 set(proinflammatory_h_fix, 'Name', 'Pro-inflammatory Fixed Stimulus');
+%                 title('Biomaterial')
 
 
                 antiinflammatory_h = figure;
@@ -273,12 +275,12 @@ classdef MacModel_singlemac < handle
                         'YTickLabel', '','FontSize',16);
                     title(sprintf('Total time (Hours) %f', generation/(60/this.GenerationSize))); %MUST CHANGE IF YOU CHANGE GENERATION SIZE
                     colorbar('TickLabels',{'M0','M1','M2','Interm.','F0','F1'},'FontSize',14)
-%                     savefig('Frame_M0_400_36h_mech_k_05_smaller_implant.fig')
-%                     saveas(gca,'Frame_M400_0_36h_mech_k_05_smaller_implant','epsc');
+%                     savefig('Frame_M0_400_30h_patho_k_2.fig')
+%                     saveas(gca,'Frame_M0_400_30h_patho_k_2','epsc');
 
 
                     set(0, 'CurrentFigure', proinflammatory_h);
-                    imagesc(this.ProInflammatoryLattice);
+                    imagesc(this.ProInflammatoryLattice,[0 10]);
                     colormap(autumn);
                     axis square;
                     set(gca, 'XTick', [], ...
@@ -287,15 +289,15 @@ classdef MacModel_singlemac < handle
                         'YTickLabel', '');
                     title('PIM')
 
-                    set(0, 'CurrentFigure', proinflammatory_h_fix);
-                    imagesc(this.ProInflammatoryLattice_fixed,[0 2]);
-                    colormap(autumn);
-                    axis square;
-                    set(gca, 'XTick', [], ...
-                        'YTick', [], ...
-                        'XTickLabel', '', ...
-                        'YTickLabel', '');
-                    title('fixed PIM')
+%                     set(0, 'CurrentFigure', proinflammatory_h_fix);
+%                     imagesc(this.ProInflammatoryLattice_fixed,[0 4]);
+%                     colormap(autumn);
+%                     axis square;
+%                     set(gca, 'XTick', [], ...
+%                         'YTick', [], ...
+%                         'XTickLabel', '', ...
+%                         'YTickLabel', '');
+%                     title('fixed PIM')
 
                     set(0, 'CurrentFigure', antiinflammatory_h);
                     imagesc(this.AntiInflammatoryLattice,[0 10]);

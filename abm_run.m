@@ -8,8 +8,9 @@ properties (SetAccess = public)
     rule;
     generations;  %number of iterations
     GenerationSize = 20; %duration in minutes of each iteration, must also change in InflammatoryDataFitting.m
+
     Runs = 1;  %number of simulations
-    hours = 36; 
+    hours = 120; 
     gridSize = 120;% default: 9  (120 corresponds to a grid of 40x40 patches)
     % SA grid size: 9 (3x3), 18 (6x6), 36 (12x12),  72 (24x24) (%added)
 end
@@ -59,6 +60,8 @@ function run(this)
         this.Rule.Results{model.Outcome}.TotalMacsSquared = this.Rule.Results{model.Outcome}.TotalMacsSquared + (model.Rules{1}.TotalMacs .^ 2);
         this.Rule.Results{model.Outcome}.ProInflammatoryCounts = this.Rule.Results{model.Outcome}.ProInflammatoryCounts + model.Rules{1}.ProInflammatoryCounts;
         this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared = this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared + (model.Rules{1}.ProInflammatoryCounts .^ 2);
+%         this.Rule.Results{model.Outcome}.ProInflammatoryCounts_fixed = this.Rule.Results{model.Outcome}.ProInflammatoryCounts_fixed + model.Rules{1}.ProInflammatoryCounts_fixed;
+%        this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed = this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed + (model.Rules{1}.ProInflammatoryCounts_fixed .^ 2);
         this.Rule.Results{model.Outcome}.AntiInflammatoryCounts = this.Rule.Results{model.Outcome}.AntiInflammatoryCounts + model.Rules{1}.AntiInflammatoryCounts;
         this.Rule.Results{model.Outcome}.AntiInflammatoryCountsSquared = this.Rule.Results{model.Outcome}.AntiInflammatoryCountsSquared + (model.Rules{1}.AntiInflammatoryCounts .^ 2);
         this.Rule.Results{model.Outcome}.SOCSCounts = this.Rule.Results{model.Outcome}.SOCSCounts + model.Rules{1}.SOCSCounts;
@@ -84,6 +87,7 @@ function run(this)
 
         this.Rule.Results{model.Outcome}.ProbRecruited_f = this.Rule.Results{model.Outcome}.ProbRecruited_f + model.Rules{1}.ProbRecruited_f;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f = this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f + (model.Rules{1}.ProbRecruited_f .^ 2);
+        this.Rule.Results{model.Outcome}.contatore = this.Rule.Results{model.Outcome}.contatore + model.Rules{1}.contatore;
 
 
     end
@@ -101,6 +105,8 @@ function run(this)
         this.Rule.Results{model.Outcome}.TotalMacsSquared = this.Rule.Results{model.Outcome}.TotalMacsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProInflammatoryCounts = this.Rule.Results{model.Outcome}.ProInflammatoryCounts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared = this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared / this.Rule.Results{model.Outcome}.Runs;
+       % this.Rule.Results{model.Outcome}.ProInflammatoryCounts_fixed = this.Rule.Results{model.Outcome}.ProInflammatoryCounts_fixed / this.Rule.Results{model.Outcome}.Runs;
+       % this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed = this.Rule.Results{model.Outcome}.ProInflammatoryCountsSquared_fixed / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.AntiInflammatoryCounts = this.Rule.Results{model.Outcome}.AntiInflammatoryCounts / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.AntiInflammatoryCountsSquared = this.Rule.Results{model.Outcome}.AntiInflammatoryCountsSquared / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.SOCSCounts = this.Rule.Results{model.Outcome}.SOCSCounts / this.Rule.Results{model.Outcome}.Runs;
@@ -126,6 +132,7 @@ function run(this)
 
         this.Rule.Results{model.Outcome}.ProbRecruited_f = this.Rule.Results{model.Outcome}.ProbRecruited_f / this.Rule.Results{model.Outcome}.Runs;
         this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f = this.Rule.Results{model.Outcome}.ProbRecruitedSquared_f / this.Rule.Results{model.Outcome}.Runs;
+        this.Rule.Results{model.Outcome}.contatore = this.Rule.Results{model.Outcome}.contatore / this.Rule.Results{model.Outcome}.Runs;
 
         % convert to vectors
         %%% healthy outcome
@@ -135,11 +142,13 @@ function run(this)
         avgm2count_h = [this.Models{i}.InitialM2Count (this.Rule.Results{1}.M2Counts)];
         avgf0count_h = [this.Models{i}.InitialF0Count (this.Rule.Results{1}.F0Counts)];
         avgf1count_h = [this.Models{i}.InitialF1Count (this.Rule.Results{1}.F1Counts)];
+        contatore_h = [0 (this.Rule.Results{1}.contatore)];
 
         avgtotalmacs_h = [avgm0count_h(1)+avgm1count_h(1)+avgm2count_h(1) (this.Rule.Results{1}.TotalMacs)];
-%         avgtotalfibro_h = [avgf0count_h(1)+avgf1count_h(1) (this.Rule.Results{1}.TotalFibro)];
+        %         avgtotalfibro_h = [avgf0count_h(1)+avgf1count_h(1) (this.Rule.Results{1}.TotalFibro)];
 
         avgpimcount_h = [this.Models{i}.InitTotalPIM (this.Rule.Results{1}.ProInflammatoryCounts)];
+ %       avgpimcount_h_fixed = [this.Models{i}.InitTotalPIM_fixed (this.Rule.Results{1}.ProInflammatoryCounts_fixed)];
         avgaimcount_h = [this.Models{i}.InitTotalAIM (this.Rule.Results{1}.AntiInflammatoryCounts)];
         avgsocscount_h = [this.Models{i}.InitialSOCS (this.Rule.Results{1}.SOCSCounts)];
         avgm1act_h = [mean(mean(this.Models{i}.InitialM1ActivationLattice)) (this.Rule.Results{1}.AverageM1Activation)];
@@ -160,9 +169,11 @@ function run(this)
         avgf1count_sq_h = [avgf1count_h(1)^2 (this.Rule.Results{1}.F1CountsSquared)];
 
         avgtotalmacs_sq_h = [avgtotalmacs_h(1)^2 (this.Rule.Results{1}.TotalMacsSquared)];
-%         avgtotalfibro_sq_h = [avgtotalfibro_h(1)^2 (this.Rule.Results{1}.TotalFibroSquared)];
+        %         avgtotalfibro_sq_h = [avgtotalfibro_h(1)^2 (this.Rule.Results{1}.TotalFibroSquared)];
 
         avgpimcount_sq_h = [avgpimcount_h(1)^2 (this.Rule.Results{1}.ProInflammatoryCountsSquared)];
+ %       avgpimcount_sq_h_fixed = [avgpimcount_h_fixed(1)^2 (this.Rule.Results{1}.ProInflammatoryCountsSquared_fixed)];
+
         avgaimcount_sq_h = [avgaimcount_h(1)^2 (this.Rule.Results{1}.AntiInflammatoryCountsSquared)];
         avgsocscount_sq_h = [avgsocscount_h(1)^2 (this.Rule.Results{1}.SOCSCountsSquared)];
         avgm1act_sq_h = [avgm1act_h(1)^2 (this.Rule.Results{1}.AverageM1ActivationSquared)];
@@ -216,6 +227,7 @@ sdtotalmacs_h = sqrt(avgtotalmacs_sq_h - avgtotalmacs_h.^2);
 % sdtotalfibro_h = sqrt(avgtotalfibro_sq_h - avgtotalfibro_h.^2);
 
 sdpimcount_h = sqrt(avgpimcount_sq_h - avgpimcount_h.^2);
+%sdpimcount_h_fixed = sqrt(avgpimcount_sq_h_fixed - avgpimcount_h_fixed.^2);
 sdaimcount_h = sqrt(avgaimcount_sq_h - avgaimcount_h.^2);
 sdsocscount_h = sqrt(avgsocscount_sq_h - avgsocscount_h.^2);
 sdm1act_h = sqrt(avgm1act_sq_h - avgm1act_h.^2);
@@ -246,11 +258,13 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         this.Rule.Results{1}.avgm2act = avgm2act_h;
         this.Rule.Results{1}.avgf1act = avgf1act_h;
         this.Rule.Results{1}.avgpimcount = avgpimcount_h;
+ %       this.Rule.Results{1}.avgpimcount = avgpimcount_h_fixed;
         this.Rule.Results{1}.avgaimcount = avgaimcount_h;
         this.Rule.Results{1}.sdm1act = sdm1act_h;
         this.Rule.Results{1}.sdm2act = sdm2act_h;
         this.Rule.Results{1}.sdf1act = sdf1act_h;
         this.Rule.Results{1}.sdpimcount = sdpimcount_h;
+%        this.Rule.Results{1}.sdpimcount_fixed = sdpimcount_h_fixed;
         this.Rule.Results{1}.sdaimcount = sdaimcount_h;
         %added
         this.Rule.Results{1}.avgm1count_tot = avgm1count_h;
@@ -271,6 +285,8 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
         this.Rule.Results{1}.recruitedfibro = avgrecruit_f_h;
         this.Rule.Results{1}.sdrecruitedmac = sdrecruit_h;
         this.Rule.Results{1}.sdrecruitedfibro = sdrecruit_f_h;
+        this.Rule.Results{1}.contatore = contatore_h;
+
         %inflammed (added)
 %         this.Rule.Results{2}.avgm1act = avgm1act_i;
 %         this.Rule.Results{2}.avgm2act = avgm2act_i;
@@ -365,22 +381,36 @@ sdprobrecruit_h = sqrt(avgprobrecruit_f_sq_h - avgprobrecruit_f_h.^2);
 %             boundedline(t,avgrecruit_h,sdrecruit_h);ylabel('Macrophages recruited');xlabel('hours');
 %         end
         
-%         if model.toggleLayeredFigure
-%             %%% healthy outcome
-%             figure('name','Results: Healthy Outcome')
-%             a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h avgf1count_h]');
-%             a(1).FaceColor = [199 199 199]/255; % M0
-%             a(2).FaceColor = [255 133 194]/255; % M1
-%             a(3).FaceColor = [255 253 128]/255; % intermediate
-%             a(4).FaceColor = [161 176 255]/255; % M2
-%             a(5).FaceColor = [255 0 0]/255; %F0
-%              a(6).FaceColor = [0 255 0]/255; %F1
+        if model.toggleLayeredFigure
+            %%% healthy outcome
+            f = figure('name','Results: Healthy Outcome');
+            set(gcf, 'Position', get(0, 'Screensize'));
+            figure('name','Results: Healthy Outcome')
+            a=area(t,[avgm0count_h; avgm1count_h; avgintcount_h; avgm2count_h; avgf0count_h;avgf1count_h]');
+            a(1).FaceColor = [199 199 199]/255; % M0
+            a(2).FaceColor = [255 133 194]/255; % M1
+            a(3).FaceColor = [255 253 128]/255; % intermediate
+            a(4).FaceColor = [161 176 255]/255; % M2
+            a(5).FaceColor = [255 0 0]/255; %F0
+            a(6).FaceColor = [128 0 0]/255; %F1
+            v = ylabel('Cells');
+            h=xlabel('hours');
+            set(h, 'FontSize', 30)
+            set(v, 'FontSize', 30)
+            xlim([0 120])
+            legend('M0','M1','Intermediate','M2','F0','F1','Location','best','Orientation','horizontal')
+            set(gca,'fontsize',30)
+%             savefig('Count_cells_M0_400_30h_patho_k_2.fig')
+%             saveas(f,'Count_cells_M0_400_30h_patho_k_2','epsc');
+%              a(6).FaceColor = [128 0 0]/255; %F1
 %             xlabel('hours')
 %             ylabel('Cells')
+%             xlim([0 144])
 %             legend('M0','M1','Intermediate','M2','F0','F1')
 %             set(gca,'fontsize',16)
-% 
-%         end
+
+
+        end
         
         % plot results
 %         if(model.SingleMacWriteUpFigures) % single macrophage model

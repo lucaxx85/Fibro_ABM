@@ -1,7 +1,7 @@
 % % 
 % % clc
-% % clear all
-% %  close all
+% clear all
+%  close all
 % % 
 % % % ic_cal_exp = nan(1,39);
 % % % 
@@ -90,8 +90,9 @@
 
 
 %%%%%%% run ABM
-clear all
+% clear all
 close all
+% load chemical_pim_gaussian_distribution
 abm_sim=abm_run;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -158,10 +159,10 @@ h3=boundedline(tspan,avgf1act,sdf1act,'alpha','cmap',dark_green,'linewidth',2); 
 legend([h1,h2,h3],'M1','M2','F1','location','best')
 ylabel('Average activation')
 % xlabel('Time (h)')
-xlim([0 36])
+xlim([0 120])
 % legend([h1(1) h2(1)],'ABM','ODE')
 set(gca,'fontsize',10)
-% 
+% % 
 % % m2 activation
 subplot(2,2,2)
 % hold on
@@ -178,7 +179,7 @@ hold on;
 h6=boundedline(tspan,avgf1count_tot,sdf1count,'alpha','cmap',dark_blue,'linewidth',2);
 ylabel('Macrophage (M) and fibroblast (F) count')
 legend([h1,h2,h3,h4,h5,h6],'M0','M1','M2','Minterm','F0','F1','location','best')
-xlim([0 36])
+xlim([0 120])
 ylim([0 inf])
 % legend([h1(1) h2(1)],'ABM','ODE')
 set(gca,'fontsize',10)
@@ -191,7 +192,7 @@ h2=boundedline(tspan,avgaimcount,sdaimcount,'alpha','cmap',light_yellow,'linewid
 ylabel('Mediator count')
 legend([h1,h2],'PIM','AIM','location','best')
 xlabel('Time (h)')
-xlim([0 36])
+xlim([0 120])
 % legend([h1(1) h2(1)],'ABM','ODE')
 set(gca,'fontsize',10)
 
@@ -202,7 +203,7 @@ hold on
 h2=boundedline(tspan,avgrecruitedfibro,sdrecruitedfibro,'alpha','cmap',dark_red,'linewidth',2); % light blue
 ylabel('Number of recruited cells')
 xlabel('Time (h)')
-xlim([0 36])
+xlim([0 120])
 ylim([0 inf])
 legend([h1,h2],'M0','F0 + F1')
 set(gca,'fontsize',10)
@@ -216,7 +217,7 @@ set(gca,'fontsize',10)
 % % h3=plot(T_comp/3600,(Y_comp(:,3)+Y_comp(:,34))/max(Y_comp(:,3)+Y_comp(:,34)),'--','color',light_yellow,'linewidth',2);
 % ylabel('Average n recruited macrophages')
 % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 1])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)
@@ -229,7 +230,7 @@ set(gca,'fontsize',10)
 % % h3=plot(T_comp/3600,(Y_comp(:,2)+Y_comp(:,16))/max((Y_comp(:,2)+Y_comp(:,16))),'--','color',light_green,'linewidth',2); % light green
 % ylabel('Average n recruited fibroblasts')
 % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 1])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)
@@ -238,7 +239,7 @@ set(gca,'fontsize',10)
 % h1=boundedline(tspan,avgm1count,sdm1countt,'alpha','cmap',dark_yellow,'linewidth',2); % light blue
 % ylabel('M1 count')
 % % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 150])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)
@@ -247,7 +248,7 @@ set(gca,'fontsize',10)
 % h1=boundedline(tspan,avgm2count,sdm2countt,'alpha','cmap',light_yellow,'linewidth',2); % light blue
 % ylabel('M2 count')
 % % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 1])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)
@@ -260,7 +261,7 @@ set(gca,'fontsize',10)
 % % h3=plot(T_comp/3600,(Y_comp(:,3)+Y_comp(:,34))/max(Y_comp(:,3)+Y_comp(:,34)),'--','color',light_yellow,'linewidth',2);
 % ylabel('F1 count')
 % % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 1])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)
@@ -273,7 +274,7 @@ set(gca,'fontsize',10)
 % % h3=plot(T_comp/3600,(Y_comp(:,2)+Y_comp(:,16))/max((Y_comp(:,2)+Y_comp(:,16))),'--','color',light_green,'linewidth',2); % light green
 % ylabel('F1 act')
 % % xlabel('Time (h)')
-% xlim([0 36])
+% xlim([0 120])
 % % ylim([0 1])
 % % legend([h1(1) h2(1) h3(1)],'ABM','ODE','ODE (+ receptor-bound)')
 % set(gca,'fontsize',8)

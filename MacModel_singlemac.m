@@ -30,9 +30,9 @@ classdef MacModel_singlemac < handle
         InitialAIM = 0;
         InitTotalAIM = 0;
         InitialSOCS = 0;
-        AgeMeanM0 = 24;   %they should be hours  1500
+        AgeMeanM0 = 24;   
         AgeStDevM0 = 6;
-        AgeMeanActivated = 48;  %they should be hours    1500
+        AgeMeanActivated = 48; 
         AgeStDevActivated = 12;
         AgeMeanF0=24;  %1368
         AgeStDevF0=6;
@@ -42,7 +42,7 @@ classdef MacModel_singlemac < handle
         ShowLattices = true;  %false
         toggleImmune = true;
         ToggleRecruitment = true;  
-        ToggleRecruitment_f = true; %in vivo sempre true, potremmo mettere una condizione con soglia
+        ToggleRecruitment_f = true; %in vivo sempre true
         togglePlot = true;  %false
         togglePlotSingleMac = true;  %false
         toggleLayeredFigure = true;   %false
@@ -129,10 +129,11 @@ classdef MacModel_singlemac < handle
             while n_mint < this.InitialIntCount
                 i = randi([1 size/3]);
                 j = randi([1 size/3]);
-                if this.InitialImmuneMatrix(i,j)~=1 || this.InitialImmuneMatrix(i,j)~=4 || this.InitialImmuneMatrix(i,j)~=6 
+                if this.InitialImmuneMatrix(i,j)~=1 || this.InitialImmuneMatrix(i,j)~=4 || this.InitialImmuneMatrix(i,j)~=6
                     this.InitialImmuneMatrix(i,j) = 8;
                     n_mint = n_mint + 1;
-                    this.ImmuneAge(i,j) = (round(this.AgeStDevActivated*randn(1)) + this.AgeMeanActivated)*60/this.GenerationSize;
+                    this.InitialImmuneAge(i,j) = (round(this.AgeStDevActivated*randn(1)) + this.AgeMeanActivated)*60/this.GenerationSize;
+                    %                     this.ImmuneAge(i,j) = (round(this.AgeStDevActivated*randn(1)) + this.AgeMeanActivated)*60/this.GenerationSize;
                     this.InitialM1ActivationLattice(i,j)=random_in_range(0,0.49);
                     this.InitialM2ActivationLattice(i,j)=random_in_range(max([0, 0.25-this.InitialM1ActivationLattice(i,j)]),0.49);
                 end
@@ -144,7 +145,7 @@ classdef MacModel_singlemac < handle
                 if this.InitialImmuneMatrix(i,j)~=1 || this.InitialImmuneMatrix(i,j)~=4 || this.InitialImmuneMatrix(i,j)~=6 || this.InitialImmuneMatrix(i,j)~=8
                     this.InitialImmuneMatrix(i,j) = 10;
                     n_f0 = n_f0 + 1;
-                    this.ImmuneAge(i,j) = (round(this.AgeStDevF0*randn(1)) + this.AgeMeanF0)*60/this.GenerationSize;
+                    this.InitialImmuneAge(i,j) = (round(this.AgeStDevF0*randn(1)) + this.AgeMeanF0)*60/this.GenerationSize;
                     this.InitialF1ActivationLattice(i,j)=random_in_range(0,0.25); %attivazione del F
                     %                     this.InitialM2ActivationLattice(i,j)=random_in_range(max([0, 0.25-this.InitialM1ActivationLattice(i,j)]),0.49);
                 end
@@ -156,7 +157,7 @@ classdef MacModel_singlemac < handle
                 if this.InitialImmuneMatrix(i,j)~=1 || this.InitialImmuneMatrix(i,j)~=4 || this.InitialImmuneMatrix(i,j)~=6 || this.InitialImmuneMatrix(i,j)~=8 || this.InitialImmuneMatrix(i,j)~=10
                     this.InitialImmuneMatrix(i,j) = 12;
                     n_f1 = n_f1 + 1;
-                    this.ImmuneAge(i,j) = (round(this.AgeStDevF1*randn(1)) + this.AgeMeanF1)*60/this.GenerationSize;
+                    this.InitialImmuneAge(i,j) = (round(this.AgeStDevF1*randn(1)) + this.AgeMeanF1)*60/this.GenerationSize;
                     this.InitialF1ActivationLattice(i,j)=random_in_range(0.25,1); %attivazione del F
                     %                     this.InitialM2ActivationLattice(i,j)=random_in_range(max([0, 0.25-this.InitialM1ActivationLattice(i,j)]),0.49);
                 end
@@ -172,12 +173,10 @@ classdef MacModel_singlemac < handle
         function reset(this)
             this.ImmuneLattice = this.InitialImmuneMatrix;
             this.ImmuneAge = this.InitialImmuneAge;
-            %             this.FibroAge = this.InitialFibroAge;
             this.ProInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             [n,~]=size(this.InitialImmuneMatrix);
             this.ProInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3))= this.InitialPIM;  %location of PIM stimulus
             this.ProInflammatoryLattice = imgaussfilt(this.ProInflammatoryLattice,2);   %blurred PIM with a gaussian filter
-            %                         this.ProInflammatoryLattice(18:22,18:22)= this.InitialPIM;  %location of PIM stimulus
             this.InitTotalPIM=sum(sum(this.ProInflammatoryLattice));
             this.AntiInflammatoryLattice = zeros(size(this.InitialImmuneMatrix));
             this.AntiInflammatoryLattice(((n/3)+1):(2*n/3),((n/3)+1):(2*n/3)) = this.InitialAIM;
